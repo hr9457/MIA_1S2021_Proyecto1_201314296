@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     libreria/funciones.cpp \
     Objetos/exec.cpp \
     CommandFDISK/fdisk.cpp \
-    comandoMOUNT/mount.cpp
+    comandoMOUNT/mount.cpp \
+    comandoUNMOUNT/unmount.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -46,4 +47,5 @@ HEADERS += \
     libreria/funciones.h \
     Objetos/exec.h \
     CommandFDISK/fdisk.h \
-    comandoMOUNT/mount.h
+    comandoMOUNT/mount.h \
+    comandoUNMOUNT/unmount.h

@@ -33,7 +33,7 @@ string mountParametros[2];
 int indice = 0;
 vector<montajeDisco> discos;
 int numeroDisco = 0;
-
+string identificadorUNMOUNT;
 
 int yyerror(const char* mens)
 {
@@ -62,6 +62,7 @@ char TEXT[256];
 %token<TEXT> tk_fdisk;
 %token<TEXT> tk_exec;
 %token<TEXT> tk_mount;
+%token<TEXT> tk_unmount;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -71,6 +72,7 @@ char TEXT[256];
 %token<TEXT> tk_add;
 %token<TEXT> tk_delete;
 %token<TEXT> tk_type;
+%token<TEXT> tk_id;
 
 %token<TEXT> guion;
 %token<TEXT> igual;
@@ -104,6 +106,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | FDISK         {fdisk manejoParticiones;manejoParticiones.ejecutarFdisk(fdiskParametros);for(int i=0;i<sizeof(fdiskParametros)/sizeof(fdiskParametros[0]);i++){fdiskParametros[i]="";}} 
         | EXEC          {exec read; read.leerArchivo(execParametro);}
         | MOUNT         {mount montaje;montaje.montarDisco(mountParametros,discos,numeroDisco);for(int i=0;i<sizeof(mountParametros)/sizeof(mountParametros[0]);i++){mountParametros[i]="";}}
+        | UNMOUNT       {}    
         | COMENTARIO    {}        
         ;
 
@@ -164,6 +167,11 @@ PARAMETROS_MOUNT  :     guion tk_path igual tk_ruta         {mountParametros[0]=
                   |     guion tk_name igual identificador   {mountParametros[1]=$4;}
                   |     guion tk_name igual cadena          {mountParametros[1]=$4;}
                   ;
+
+
+UNMOUNT     :     tk_unmount guion tk_id igual identificador      {identificadorUNMOUNT=$5;}
+            ;
+
 
 
 EXEC : tk_exec guion tk_path igual cadena     {execParametro=$5;}

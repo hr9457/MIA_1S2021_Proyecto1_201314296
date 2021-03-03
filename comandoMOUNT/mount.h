@@ -33,6 +33,7 @@ public:
     string generarIdentificador(int&,int,montajeDisco&);
     void impresionListadoParticones(vector<montajeDisco>&);
     bool searchParticionDisco(string,string);
+    bool searchParticionMontada(vector<montajeDisco>&,string);
 };
 
 #endif // MOUNT_H

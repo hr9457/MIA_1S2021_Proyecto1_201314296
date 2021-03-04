@@ -55,25 +55,27 @@ extern int yydebug;
     tk_exec = 261,
     tk_mount = 262,
     tk_unmount = 263,
-    tk_size = 264,
-    tk_path = 265,
-    tk_f = 266,
-    tk_u = 267,
-    tk_name = 268,
-    tk_add = 269,
-    tk_delete = 270,
-    tk_type = 271,
-    tk_id = 272,
-    guion = 273,
-    igual = 274,
-    interrogacion = 275,
-    por = 276,
-    punto = 277,
-    entero = 278,
-    cadena = 279,
-    identificador = 280,
-    tk_ruta = 281,
-    comentario = 282
+    tk_mkfs = 264,
+    tk_size = 265,
+    tk_path = 266,
+    tk_f = 267,
+    tk_u = 268,
+    tk_name = 269,
+    tk_add = 270,
+    tk_delete = 271,
+    tk_type = 272,
+    tk_id = 273,
+    tk_fs = 274,
+    guion = 275,
+    igual = 276,
+    interrogacion = 277,
+    por = 278,
+    punto = 279,
+    entero = 280,
+    cadena = 281,
+    identificador = 282,
+    tk_ruta = 283,
+    comentario = 284
   };
 #endif
 
@@ -81,7 +83,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 50 "parser.y"
+#line 52 "parser.y"
 
 //se especifican los tipo de valores para los no terminales y lo terminales
 //char TEXT [256];
@@ -90,7 +92,7 @@ char TEXT[256];
 /*objetos para cada comando*/
 //class mkdisk *mkdisk;
 
-#line 94 "parser.h"
+#line 96 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

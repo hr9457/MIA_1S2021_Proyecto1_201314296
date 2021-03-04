@@ -69,6 +69,20 @@ void unmount::impresionMontaje(vector<montajeDisco>&listado)
 // funcin para contar si el disco aun tiene particiones montadas
 void unmount::revisionParticionesDiscos(vector<montajeDisco>&listado)
 {
-    
+    int particionesMontadas = 0;
+    // recorrido de toda la lista con los discos montados
+    for(int disco=0;disco<listado.size();disco++)
+    {
+        // recorro las particiones montadas por ese disco
+        for(int particion=0;particion<4;particion++)
+        {
+            // busco las particiones que esten con el status 1
+            if(listado[disco].particiones[particion].status == '1')
+            {
+                particionesMontadas++;
+            }
+        }
+    }
+    // fin del ciclo for
 }
 

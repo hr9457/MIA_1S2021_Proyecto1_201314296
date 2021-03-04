@@ -32,7 +32,6 @@ comentario #.*
 /*palabras reservadas*/
 /*
 
-"mkfs" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_mkfs;}
 "login" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_login;}
 "mkgrp" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_mkgrp;}
 "rmgrp" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_rmgrp;}
@@ -62,7 +61,6 @@ comentario #.*
 "name" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_name;}
 "add" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_add;}
 
-"fs" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_fs;}
 "usr" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_usr;}
 "pwd" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_pwd;}
 "grp" {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_grp;}
@@ -82,6 +80,7 @@ comentario #.*
 "exec"      {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_exec;}
 "mount"     {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_mount;}
 "unmount"   {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_unmount;}
+"mkfs"      {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_mkfs;}
 
 "size"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return tk_size;}
 "path"      {columna=columna+ anterior;  anterior = strlen(yytext); strcpy(yylval.TEXT, yytext);return tk_path;}
@@ -92,6 +91,7 @@ comentario #.*
 "delete"    {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_delete;}
 "type"      {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_type;}
 "id"        {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_id;}
+"fs"        {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return tk_fs;}
 
 {entero}        {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return entero;}
 {cadena}        {columna=columna+ anterior;  anterior = strlen(yytext);strcpy(yylval.TEXT, yytext);return cadena;}

@@ -15,6 +15,7 @@
 #include "CommandFDISK/fdisk.h"
 #include "comandoMOUNT/mount.h"
 #include "comandoUNMOUNT/unmount.h"
+#include "comandoMKFS/mkfs.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -35,6 +36,7 @@ int indice = 0;
 vector<montajeDisco> discos;
 int numeroDisco = 0;
 string identificadorUNMOUNT;
+string mkfsParametros[3];
 
 int yyerror(const char* mens)
 {
@@ -64,6 +66,7 @@ char TEXT[256];
 %token<TEXT> tk_exec;
 %token<TEXT> tk_mount;
 %token<TEXT> tk_unmount;
+%token<TEXT> tk_mkfs;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -74,6 +77,7 @@ char TEXT[256];
 %token<TEXT> tk_delete;
 %token<TEXT> tk_type;
 %token<TEXT> tk_id;
+%token<TEXT> tk_fs;
 
 %token<TEXT> guion;
 %token<TEXT> igual;
@@ -107,7 +111,8 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | FDISK         {fdisk manejoParticiones;manejoParticiones.ejecutarFdisk(fdiskParametros);for(int i=0;i<sizeof(fdiskParametros)/sizeof(fdiskParametros[0]);i++){fdiskParametros[i]="";}} 
         | EXEC          {exec read; read.leerArchivo(execParametro);}
         | MOUNT         {mount montaje;montaje.montarDisco(mountParametros,discos,numeroDisco);for(int i=0;i<sizeof(mountParametros)/sizeof(mountParametros[0]);i++){mountParametros[i]="";}}
-        | UNMOUNT       {unmount desmontaje;desmontaje.desmontarDisco(discos,identificadorUNMOUNT);}    
+        | UNMOUNT       {unmount desmontaje;desmontaje.desmontarDisco(discos,identificadorUNMOUNT);} 
+        | MKFS          {mkfs sisArchivos;sisArchivos.crearSistemaArchivos(mkfsParametros);for(int i=0;i<sizeof(mkfsParametros)/sizeof(mkfsParametros[0]);i++){mkfsParametros[i]="";}}   
         | COMENTARIO    {}        
         ;
 
@@ -173,6 +178,19 @@ PARAMETROS_MOUNT  :     guion tk_path igual tk_ruta         {mountParametros[0]=
 UNMOUNT     :     tk_unmount guion tk_id igual identificador      {identificadorUNMOUNT=$5;}
             ;
 
+
+
+MKFS  :     tk_mkfs LIST_PARAMETROS_MKFS
+      ;
+
+LIST_PARAMETROS_MKFS    :     LIST_PARAMETROS_MKFS PARAMETROS_MKFS
+                        |     PARAMETROS_MKFS
+                        ;
+
+PARAMETROS_MKFS   :     guion tk_id igual identificador     {mkfsParametros[0]=$4;}
+                  |     guion tk_type igual identificador   {mkfsParametros[1]=$4;}
+                  |     guion tk_fs igual identificador     {mkfsParametros[2]=$4;}
+                  ;
 
 
 EXEC : tk_exec guion tk_path igual cadena     {execParametro=$5;}

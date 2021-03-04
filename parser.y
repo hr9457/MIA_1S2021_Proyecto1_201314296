@@ -14,6 +14,7 @@
 #include "Objetos/exec.h"
 #include "CommandFDISK/fdisk.h"
 #include "comandoMOUNT/mount.h"
+#include "comandoUNMOUNT/unmount.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -106,7 +107,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | FDISK         {fdisk manejoParticiones;manejoParticiones.ejecutarFdisk(fdiskParametros);for(int i=0;i<sizeof(fdiskParametros)/sizeof(fdiskParametros[0]);i++){fdiskParametros[i]="";}} 
         | EXEC          {exec read; read.leerArchivo(execParametro);}
         | MOUNT         {mount montaje;montaje.montarDisco(mountParametros,discos,numeroDisco);for(int i=0;i<sizeof(mountParametros)/sizeof(mountParametros[0]);i++){mountParametros[i]="";}}
-        | UNMOUNT       {}    
+        | UNMOUNT       {unmount desmontaje;desmontaje.desmontarDisco(discos,identificadorUNMOUNT);}    
         | COMENTARIO    {}        
         ;
 

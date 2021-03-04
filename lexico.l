@@ -21,7 +21,7 @@ int anterior = 0;
 entero [0-9]+
 letra [a-zA-Z]
 
-identificador {letra}({letra}|{entero}|"_")*
+identificador ({letra}|{entero}|"_")+({letra}|{entero}|"_")*
 ruta ([/]([^\n' '])*)
 cadena [\"][^\"\n]*[\"\n]
 comentario #.*

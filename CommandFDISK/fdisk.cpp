@@ -188,7 +188,7 @@ void fdisk::encontrarEspaciosLibres()
         {
             // contadores para saber cuantas particiones hay de cada tipo
             if(MBR.mbr_partitions[i].part_type == 'p'){contadorPrimarias++;totalParticiones++;}
-            else if(MBR.mbr_partitions[i].part_type == 'e'){contadorExtendidas++;totalParticiones;}
+            else if(MBR.mbr_partitions[i].part_type == 'e'){contadorExtendidas++;totalParticiones++;}
             else if(MBR.mbr_partitions[i].part_type == 'l'){contadorLogicas++;}
             //
             particion.part_star = MBR.mbr_partitions[i].part_star;
@@ -196,22 +196,26 @@ void fdisk::encontrarEspaciosLibres()
             copia.push_back(particion);
         }        
     }
-    
+    //cout<<"===>Fin de la busquda de particiones utilizadas"<<endl;
+
     // ordenamiento de la copia con las particiones llenas en el disco
     // ordenamiento burbuja
-    for(int i=0;i<copia.size()-1;i++)
-    {
-        for(int j=i+1;j<copia.size();j++)
+    if(copia.empty()!=true){
+        for(int i=0;i<copia.size()-1;i++)
         {
-            if(copia[i].part_star > copia[j].part_star)
+            for(int j=i+1;j<copia.size();j++)
             {
-                partition2 aux = copia[i];
-                copia[i] = copia[j];
-                copia[j] = aux;
+                if(copia[i].part_star > copia[j].part_star)
+                {
+                    partition2 aux = copia[i];
+                    copia[i] = copia[j];
+                    copia[j] = aux;
+                }
             }
         }
     }
-        
+    //cout<<"===>fin de ordenamiento de particiones ocupadas"<<endl;
+    
     // crecion de una lista con los espacios en blanco dentro del disco
     int inicio = sizeof(MBR);
     int inicioParticion;
@@ -233,6 +237,7 @@ void fdisk::encontrarEspaciosLibres()
             particionesLibres.push_back(particionLibre); 
         }        
     }    
+    //cout<<"-->fin del la creacion de la lista con los espacios en blanco"<<endl;
 
     // condicion final si llego al final del disco
     if(inicio < MBR.mbr_tamanio)
@@ -315,11 +320,15 @@ void fdisk::buscarDentroParticion(int sizeParticion)
                     // creacion de solo una particon extendida dentro del disco
                     if(tipoParticion=='e' && contadorExtendidas<1)
                     {
+                        // creacion particiones primarias
+                        int star = particionesLibres[inicio].part_star;
+                        int sizeEncontrado = this->sizeParticion;//cambio
                         cout<<"Creacion de una particion tipo: "<<tipoParticion<<endl;
                         cout<<"particion de tamanio: "<<this->sizeParticion<<""<<this->u<<endl;
                         cout<<"Con fit de: "<<this->fitParticion<<endl;
                         cout<<"El nombre de: "<<this->name<<endl;
                         cout<<"EN PARTICION No."<<inicio<<endl;
+                        agregarActualizarMBR('1',tipoParticion,this->fitParticion,star,sizeEncontrado,this->name);
                         break;
                     }
                     else if(tipoParticion=='l' && contadorExtendidas>1)
@@ -336,14 +345,16 @@ void fdisk::buscarDentroParticion(int sizeParticion)
                     {
                         // creacion particiones primarias
                         int star = particionesLibres[inicio].part_star;
-                        int sizeEncontrado = particionesLibres[inicio].part_size;
+                        int sizeEncontrado = this->sizeParticion;//cambio
                         cout<<"-->Creacion de una particion tipo: "<<tipoParticion<<endl;
                         cout<<"-->particion de tamanio ingresada: "<<this->sizeParticion<<""<<this->u<<endl;
                         cout<<"-->Con fit de: "<<this->fitParticion<<endl;
                         cout<<"-->El nombre de: "<<this->name<<endl;
                         cout<<"-->que inicia en: "<<star<<endl;
                         cout<<"-->que tiene tmanio de: "<<sizeEncontrado<<endl;
+                        cout<<"-->PARTICION  CREADA"<<endl;
                         agregarActualizarMBR('1',tipoParticion,this->fitParticion,star,sizeEncontrado,this->name);
+                        //cout<<"-->MBR  ACTUALIZADO"<<endl;
                         // fdisk -path=/home/hector/prueba/discoFF2.dk -size=200 -u=b -type=p -f=ff -name=hector
                         break;
                     }
@@ -420,6 +431,7 @@ void fdisk::agregarActualizarMBR(char status,char type,char fit,int star,int siz
     fwrite(&MBR,sizeof(MBR),1,archivo);
     // cierre del dico con los cambios
     fclose(archivo);
+    //cout<<"===>CIRRE DEL ARCHIVO"<<endl;
 }
 
 

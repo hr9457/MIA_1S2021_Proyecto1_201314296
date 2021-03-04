@@ -123,3 +123,24 @@ bool funciones::elementoEnVector(vector<string>arreglo,string busqueda)
         }
     }
 }
+
+
+
+// metodo para obtener la hora actual del sistema
+string funciones::obtenerFechaHora()
+{
+    // crecion de fecha y hora para guardar en el MBR
+    string horaFecha;
+    time_t rawtime;
+    struct tm * timeinfo;
+    char bufferInfo[16];
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    strftime(bufferInfo,sizeof(bufferInfo),"%d/%m/%y %H:%M",timeinfo);
+    //convierto  todo el char a un string
+    for(int i=0;i<16;i++)
+    {
+        horaFecha += bufferInfo[i];
+    }    
+    return horaFecha;
+}

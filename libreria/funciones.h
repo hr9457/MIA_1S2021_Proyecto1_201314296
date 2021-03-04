@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 using namespace std;
 class funciones
 {
@@ -24,6 +25,7 @@ public:
     bool buscarElemento(string [],string);
     string vectorAstring(char []);
     bool elementoEnVector(vector<string>,string);
+    string obtenerFechaHora();
 };
 
 #endif // FUNCIONES_H

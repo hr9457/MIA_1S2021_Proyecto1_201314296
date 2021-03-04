@@ -6,7 +6,7 @@ mkfs::mkfs()
 
 
 // funcion principal la creacion del sistemas de archivos
-void mkfs::crearSistemaArchivos(string parametros[])
+void mkfs::crearSistemaArchivos(string parametros[],vector<montajeDisco>&listado)
 {
     // posiciones de los parametros: identificador - 0, type - 1, fs - 2
     if(parametros[0].empty()!=true)
@@ -14,7 +14,8 @@ void mkfs::crearSistemaArchivos(string parametros[])
         this->identificador=parametros[0];
         // actualizacion de parametros opcionales type, fs
         parametrosOpcionales(parametros);
-        cout<<"-->se creara un SA para: "<<identificador<<" type:"<<tipoFormateo<<" SA: "<<tipoSistema<<endl;
+        //cout<<FUN.obtenerFechaHora()<<endl;
+        //cout<<"-->se creara un SA para: "<<identificador<<" type:"<<tipoFormateo<<" SA: "<<tipoSistema<<endl;
     }
     else
     {
@@ -60,4 +61,22 @@ void mkfs::parametrosOpcionales(string parametos[])
             cout<<"-->Tipo de sistema de archivos no coinciden: 2fs o 3fs se uso por defecto EXT2"<<endl;
         }
     }
+}
+
+
+// funcion para la busqueda de la particion montada 
+bool mkfs::busquedaParticion(vector<montajeDisco>&listado)
+{}
+
+// funcion para selecionar que sistema de archivos se instalar en la particion
+void mkfs::selecionarSistemaArchivos()
+{
+    if(this->tipoSistema == "2fs")
+    {
+        cout<<"se ha instalado el sistemas de archivos ext2"<<endl;
+    }
+    else if(this->tipoSistema == "3fs")
+    {
+        cout<<"se ha instalado el sistema de archivos ext3"<<endl;
+    }    
 }

@@ -1593,7 +1593,7 @@ yyreduce:
 
   case 11:
 #line 115 "parser.y"
-                        {mkfs sisArchivos;sisArchivos.crearSistemaArchivos(mkfsParametros);for(int i=0;i<sizeof(mkfsParametros)/sizeof(mkfsParametros[0]);i++){mkfsParametros[i]="";}}
+                        {mkfs sisArchivos;sisArchivos.crearSistemaArchivos(mkfsParametros,discos);for(int i=0;i<sizeof(mkfsParametros)/sizeof(mkfsParametros[0]);i++){mkfsParametros[i]="";}}
 #line 1598 "parser.cpp"
     break;
 

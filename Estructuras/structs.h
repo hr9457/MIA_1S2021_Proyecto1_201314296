@@ -49,43 +49,66 @@ struct journal
     int Journal_permisos; //777...664
 };
 
-// /*Estructura para el SUPER BLOQUE*/
-// struct superBloque
-// {
-//     /* data */
-//     int s_filesystem_tyep;
-//     int s_inodes_count;
-//     int s_blocks_count;
-//     int s_free_blocks_count;
-//     int s_free_inodes_count;
-//     time_t s_mtime;
-//     time_t s_umtime;
-//     int s_mnt_count;
-//     int s_magic;
-//     int s_inode_size;
-//     int s_block_size;
-//     int s_firts_ino;
-//     int s_first_blo;
-//     int s_bm_inode_start;
-//     int s_bm_block_start;
-//     int s_inode_start;
-//     int s_block_start;
-// };
+/*Estructura para el SUPER BLOQUE*/
+struct superBloque
+{
+    /* data */
+    int s_filesystem_tyep;//numero del sistema de archivos
+    int s_inodes_count;// numero total de indos
+    int s_blocks_count;// guarda el numero total de bloques
+    int s_free_blocks_count;// contiene el numero de bloques libres
+    int s_free_inodes_count;// contiene el numero de inodos libres
+    char s_mtime[16];//ultima fecha el disco fue montada
+    char s_umtime[16];// ultima fecha en el que el disco fue desmontado
+    int s_mnt_count;// indica cuantas veces se ha montado el sistema
+    int s_magic;// valor identifica al sistema de archivs 0xEF53
+    int s_inode_size;// tamanio del inodo
+    int s_block_size;// tamano del bloque
+    int s_firts_ino;// primer indodo libre
+    int s_first_blo;// primer bloque libre
+    int s_bm_inode_start;// guardara el inicio del bloque de bitmap
+    int s_bm_block_start;// guardara el inicio del bloque de bitmap de bloques
+    int s_inode_start;// guardara el inicio de la tabla de inodos
+    int s_block_start;// guaradara el inicio de la tabla de bloques
+};
 
-// /*Estructura para los inodos*/
-// struct inodos
-// {
-//     /* data */
-//     int i_uid;
-//     int i_gid;
-//     int i_size;
-//     time_t i_atime;
-//     time_t i_ctime;
-//     time_t i_mtime;
-//     int i_block;
-//     char i_type;
-//     int i_perm;    
-// };
+/*Estructura para los inodos*/
+struct inodo
+{
+    /* data */
+    int i_uid;// uid del usiario propietario 
+    int i_gid;// gid del grupo al que pertene al archivo o carpeta
+    int i_size;// tamanio del archivo en bytes
+    char i_atime[16];// utltima fecha en que se leyo el inodo sin modificarlos
+    char i_ctime[16];// fecha en la que se creo el inodo
+    char i_mtime[16];// ultima fecha en la que se modifico el inodo
+    int i_block[15];// array 12 registros 
+    char i_type;// indica si e sarchivo o carpeta 1=archivo, 0=carpeta
+    int i_perm;// guardara los permisos del archivo o carpeta    
+};
+
+/*Estructura para el content*/
+struct content
+{
+    /* data */
+    char b_name[4];
+    int b_inodo;
+};
+
+/*Estructura del bloque de carpetas*/
+struct bloque_carpetas
+{
+    /* data */
+    content b_content[4];
+};
+
+
+/*Estrura del bloque de archivos*/
+struct bloque_archivos
+{
+    /* data */
+    char b_content[64];
+};
 
 
 /* Estructura par las particiones en blaco */

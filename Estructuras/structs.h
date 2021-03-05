@@ -91,7 +91,7 @@ struct inodo
 struct content
 {
     /* data */
-    char b_name[4];
+    char b_name[12];
     int b_inodo;
 };
 
@@ -125,6 +125,7 @@ struct partitionMontada
 {
     /* data */
     char status;
+    int sizeDisco;
     char identificador[200];
     char nombreParticion[200];
 };

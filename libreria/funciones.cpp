@@ -144,3 +144,46 @@ string funciones::obtenerFechaHora()
     }    
     return horaFecha;
 }
+
+
+
+// metodo para saber si la particion esta montada por el comando mount
+bool funciones::busquedaParticion(vector<montajeDisco>&listado,string identificador)
+{
+    // verificacion de algun elmento en el disco
+    // busqueda disco por disco
+    for(int disco=0;disco<listado.size();disco++)
+    {
+        // busqueda particion por particion
+        for(int particion=0;particion<4;particion++)
+        {
+            if(listado[disco].particiones[particion].status == '1' && strcmp(listado[disco].particiones[particion].nombreParticion,identificador.c_str()) )
+            {
+                return true;
+            }
+        }            
+    }
+    return false;
+}
+
+
+// metodo para saber el size de la particon montada por el comando mount
+int funciones::busquedaSizeParticion(vector<montajeDisco>&listado,string identificador)
+{
+    int size=0;
+    // verificacion de algun elmento en el disco
+    // busqueda disco por disco
+    for(int disco=0;disco<listado.size();disco++)
+    {
+        // busqueda particion por particion
+        for(int particion=0;particion<4;particion++)
+        {
+            if(listado[disco].particiones[particion].status == '1' && strcmp(listado[disco].particiones[particion].nombreParticion,identificador.c_str()) )
+            {
+                size = listado[disco].particiones[particion].sizeDisco;
+                return size;
+            }
+        }            
+    }
+    return size;
+}

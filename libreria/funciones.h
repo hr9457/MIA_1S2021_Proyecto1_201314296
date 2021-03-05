@@ -1,5 +1,6 @@
 #ifndef FUNCIONES_H
 #define FUNCIONES_H
+#include "Estructuras/structs.h"
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -26,6 +27,8 @@ public:
     string vectorAstring(char []);
     bool elementoEnVector(vector<string>,string);
     string obtenerFechaHora();
+    bool busquedaParticion(vector<montajeDisco>&,string);
+    int busquedaSizeParticion(vector<montajeDisco>&,string);
 };
 
 #endif // FUNCIONES_H

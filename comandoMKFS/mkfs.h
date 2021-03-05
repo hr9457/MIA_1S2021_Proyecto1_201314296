@@ -21,6 +21,11 @@ public:
     void parametrosOpcionales(string[]);
     bool busquedaParticion(vector<montajeDisco>&);
     void selecionarSistemaArchivos();
+    void formateoFast();
+    void formateoFull();
+    void sistemaExt2();
+    void sistemaExt3();
+    void calcularInodos(vector<montajeDisco>&,string);
 };
 
 #endif // MKFS_H

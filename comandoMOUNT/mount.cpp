@@ -92,6 +92,7 @@ void mount::addLista(string ruta,int &numeroDisco,vector<montajeDisco>&listado,s
                         discoNuevo = 0; // saber si hay que buscar un letra nueva para el id
                         string identificadParticion = generarIdentificador(numeroDiscoEncontrado,discoNuevo,particionMontada);
                         listado[particionRepetida].particiones[i].status = '1';
+                        listado[particionRepetida].particiones[i].sizeDisco = this->tamanioParticion;
                         strcpy(listado[particionRepetida].particiones[i].identificador,identificadParticion.c_str());
                         strcpy(listado[particionRepetida].particiones[i].nombreParticion,nameDisco.c_str());
                         cout<<"Particion montada"<<endl;
@@ -112,6 +113,7 @@ void mount::addLista(string ruta,int &numeroDisco,vector<montajeDisco>&listado,s
             strcpy(datosParticion.identificador,"-");
             strcpy(datosParticion.nombreParticion,"-");
             datosParticion.status = '0';
+            datosParticion.sizeDisco = -1;
             //despojando espacios para montar particiones
             for(int i=0;i<4;i++)
             {nuevaParticion.particiones[i] = datosParticion;}
@@ -127,6 +129,7 @@ void mount::addLista(string ruta,int &numeroDisco,vector<montajeDisco>&listado,s
                     espacioParticionesMontadas=1;
                     string identificadorParticion = generarIdentificador(numeroDisco,discoNuevo,nuevaParticion);
                     nuevaParticion.particiones[i].status = '1';
+                    nuevaParticion.particiones[i].sizeDisco = this->tamanioParticion;
                     strcpy(nuevaParticion.particiones[i].identificador,identificadorParticion.c_str());
                     strcpy(nuevaParticion.particiones[i].nombreParticion,nameDisco.c_str());
                     break;
@@ -235,6 +238,7 @@ bool mount::searchParticionDisco(string rutaDisco,string busquedaParticion)
     {
         if(!strcmp( MBR.mbr_partitions[i].part_name,busquedaParticion.c_str()))
         {
+            this->tamanioParticion = MBR.mbr_partitions[i].part_size;
             return true;
         }
     }
@@ -251,11 +255,11 @@ bool mount::searchParticionMontada(vector<montajeDisco>&listado,string nombrePar
         // recorro particion por particion del disco para comprobar que no este motada 
         for(int j=0;j<4;j++)
         {
-            if(listado[i].particiones[j].status == '1' && !strcmp(listado[i].particiones[j].nombreParticion,nombreParticion.c_str()))
+            if(listado[i].particiones[j].status == '1' && !strcmp(listado[i].particiones[j].identificador,nombreParticion.c_str()))
             {
                 return true;
             }
-            cout<<"-->busqueda en la siguiente particion montada"<<endl;
+            //cout<<"-->busqueda en la siguiente particion montada"<<endl;
         }
     }
     return false;

@@ -24,6 +24,7 @@ private:
     'k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
     int contadorLetras;
     int tamanioParticion;
+    int part_star;
     //vector<montajeDisco> discos;
 public:
     mount();

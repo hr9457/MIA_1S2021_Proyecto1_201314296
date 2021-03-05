@@ -20,6 +20,7 @@ public:
     void crearSistemaArchivos(string[],vector<montajeDisco>&);
     void parametrosOpcionales(string[]);
     bool busquedaParticion(vector<montajeDisco>&);
+    void formatearParticion(vector<montajeDisco>&,string);
     void selecionarSistemaArchivos();
     void formateoFast();
     void formateoFull();

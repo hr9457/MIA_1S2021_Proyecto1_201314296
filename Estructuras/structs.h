@@ -125,6 +125,7 @@ struct partitionMontada
 {
     /* data */
     char status;
+    int part_star;
     int sizeDisco;
     char identificador[200];
     char nombreParticion[200];

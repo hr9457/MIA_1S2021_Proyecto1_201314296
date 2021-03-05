@@ -29,6 +29,8 @@ public:
     string obtenerFechaHora();
     bool busquedaParticion(vector<montajeDisco>&,string);
     int busquedaSizeParticion(vector<montajeDisco>&,string);
+    int busquedaStarParticion(vector<montajeDisco>&,string);
+    string busquedaPathParticion(vector<montajeDisco>&,string);
 };
 
 #endif // FUNCIONES_H

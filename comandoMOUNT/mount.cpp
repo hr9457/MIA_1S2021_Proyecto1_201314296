@@ -92,6 +92,7 @@ void mount::addLista(string ruta,int &numeroDisco,vector<montajeDisco>&listado,s
                         discoNuevo = 0; // saber si hay que buscar un letra nueva para el id
                         string identificadParticion = generarIdentificador(numeroDiscoEncontrado,discoNuevo,particionMontada);
                         listado[particionRepetida].particiones[i].status = '1';
+                        listado[particionRepetida].particiones[i].part_star = this->part_star;
                         listado[particionRepetida].particiones[i].sizeDisco = this->tamanioParticion;
                         strcpy(listado[particionRepetida].particiones[i].identificador,identificadParticion.c_str());
                         strcpy(listado[particionRepetida].particiones[i].nombreParticion,nameDisco.c_str());
@@ -129,6 +130,7 @@ void mount::addLista(string ruta,int &numeroDisco,vector<montajeDisco>&listado,s
                     espacioParticionesMontadas=1;
                     string identificadorParticion = generarIdentificador(numeroDisco,discoNuevo,nuevaParticion);
                     nuevaParticion.particiones[i].status = '1';
+                    nuevaParticion.particiones[i].part_star = this->part_star;
                     nuevaParticion.particiones[i].sizeDisco = this->tamanioParticion;
                     strcpy(nuevaParticion.particiones[i].identificador,identificadorParticion.c_str());
                     strcpy(nuevaParticion.particiones[i].nombreParticion,nameDisco.c_str());
@@ -238,6 +240,7 @@ bool mount::searchParticionDisco(string rutaDisco,string busquedaParticion)
     {
         if(!strcmp( MBR.mbr_partitions[i].part_name,busquedaParticion.c_str()))
         {
+            this->part_star = MBR.mbr_partitions[i].part_star;
             this->tamanioParticion = MBR.mbr_partitions[i].part_size;
             return true;
         }

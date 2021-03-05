@@ -16,9 +16,11 @@ void mkfs::crearSistemaArchivos(string parametros[],vector<montajeDisco>&listado
         parametrosOpcionales(parametros);
         if(FUN.busquedaParticion(listado,this->identificador))
         {
-            cout<<"-->Particion si esta montada"<<endl;
+            cout<<"-->Particion montada<--"<<endl;
+            formatearParticion(listado,this->identificador);
             //selecionarSistemaArchivos();
-            calcularInodos(listado,this->identificador);
+            //selecionarSistemaArchivos();
+            //calcularInodos(listado,this->identificador);
         }
         else
         {
@@ -75,6 +77,40 @@ void mkfs::parametrosOpcionales(string parametos[])
 
 
 
+// formataeo de la particion antes de la instalcion del sistema de archivos
+void mkfs::formatearParticion(vector<montajeDisco>&listado,string identificador)
+{
+    int part_star = FUN.busquedaStarParticion(listado,identificador);
+    int part_size = FUN.busquedaSizeParticion(listado,identificador);
+    string rutaArchivo = FUN.busquedaPathParticion(listado,identificador);
+    int byteAformatear = part_star;
+    
+    FILE *archivo;
+    // apertura del disco para lectura y actualizacion rb+
+    archivo = fopen(rutaArchivo.c_str(),"rb+");    
+    if(archivo==NULL)
+        exit(1);
+
+    // posiciono al inicio del archivo
+    fseek(archivo,part_star,SEEK_SET); // inicio de la particion a formatear
+    // re-escribo el para formatear dentro de la particion
+    if(this->tipoFormateo == "full")
+    {
+        char formatearCon = '\0';
+        // recorro byte por byte hasta llegar al final de la particion
+        for(int numeroByte=0; numeroByte<part_size; numeroByte++)
+        {
+            // formateo el byte
+            fwrite(&formatearCon,sizeof(formatearCon),1,archivo);
+            // posiciono en el siguiente byte - byteAformater = inicio de la particion
+            fseek(archivo,byteAformatear++,SEEK_SET);
+        }
+    }
+    // cierre del dico con los cambios
+    fclose(archivo);
+}
+
+
 // funcion para selecionar que sistema de archivos se instalar en la particion
 void mkfs::selecionarSistemaArchivos()
 {
@@ -103,11 +139,15 @@ void mkfs::sistemaExt3()
 void mkfs::calcularInodos(vector<montajeDisco>&listado,string identificador)
 {
     // variables a=sizeDisco, b=sizeof(S.P), c=sizeof(J), d=sizeof(Inodo), e=sizeof(Block)
+    string ruta = FUN.busquedaPathParticion(listado,identificador);
+    int part_star = FUN.busquedaStarParticion(listado,identificador);
     int a = FUN.busquedaSizeParticion(listado,identificador);
     int b = sizeof(superBloque);
     int c = sizeof(journal);
     int d = sizeof(inodo);
     int e = sizeof(bloque_archivos);
+    cout<<"Ubicacion de la particion: "<<ruta<<endl;
+    cout<<"Inicio de la particion: "<<part_star<<endl;
     cout<<"Tamanio del disco: "<<a<<endl;
     cout<<"Tamanio del S.P: "<<b<<endl;
     cout<<"Tamanio del Journal: "<<c<<endl;

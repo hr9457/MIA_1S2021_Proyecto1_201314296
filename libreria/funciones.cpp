@@ -187,3 +187,47 @@ int funciones::busquedaSizeParticion(vector<montajeDisco>&listado,string identif
     }
     return size;
 }
+
+
+// metod para saber el inicio de una particion montada por el comando mount
+int funciones::busquedaStarParticion(vector<montajeDisco>&listado,string identificador)
+{
+    int part_star=0;
+    // verificacion de algun elmento en el disco
+    // busqueda disco por disco
+    for(int disco=0;disco<listado.size();disco++)
+    {
+        // busqueda particion por particion
+        for(int particion=0;particion<4;particion++)
+        {
+            if(listado[disco].particiones[particion].status == '1' && strcmp(listado[disco].particiones[particion].nombreParticion,identificador.c_str()) )
+            {
+                part_star = listado[disco].particiones[particion].part_star;
+                return part_star;
+            }
+        }            
+    }
+    return part_star;
+}
+
+
+// metodo para saber la ruta de un archiv de una particon montada por el comando mount
+string funciones::busquedaPathParticion(vector<montajeDisco>&listado,string identificador)
+{
+    string path="";
+    // verificacion de algun elmento en el disco
+    // busqueda disco por disco
+    for(int disco=0;disco<listado.size();disco++)
+    {
+        // busqueda particion por particion
+        for(int particion=0;particion<4;particion++)
+        {
+            if(listado[disco].particiones[particion].status == '1' && strcmp(listado[disco].particiones[particion].nombreParticion,identificador.c_str()) )
+            {
+                path = listado[disco].rutaArchivo;
+                return path;
+            }
+        }            
+    }
+    return path;
+}

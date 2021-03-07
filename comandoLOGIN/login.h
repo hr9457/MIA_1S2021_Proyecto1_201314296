@@ -19,7 +19,7 @@ public:
     void iniciarSession(vector<usuarioConectado>&,vector<montajeDisco>&,string[]);
     bool verificacionParametros(string[]);
     string eliminacionComillas(string);
-    void verificacionUsuario(vector<montajeDisco>&,string,string,string);
+    void verificacionUsuario(vector<montajeDisco>&,string,string,string,vector<usuarioConectado>&);
     void addUsuario(vector<usuarioConectado>&,string,string,string);
 };
 

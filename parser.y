@@ -17,6 +17,7 @@
 #include "comandoUNMOUNT/unmount.h"
 #include "comandoMKFS/mkfs.h"
 #include "comandoLOGIN/login.h"
+#include "comandoLOGOUT/logout.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -71,6 +72,7 @@ char TEXT[256];
 %token<TEXT> tk_unmount;
 %token<TEXT> tk_mkfs;
 %token<TEXT> tk_login;
+%token<TEXT> tk_logout;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -120,6 +122,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | UNMOUNT       {unmount desmontaje;desmontaje.desmontarDisco(discos,identificadorUNMOUNT);} 
         | MKFS          {mkfs sisArchivos;sisArchivos.crearSistemaArchivos(mkfsParametros,discos);for(int i=0;i<sizeof(mkfsParametros)/sizeof(mkfsParametros[0]);i++){mkfsParametros[i]="";}}   
         | LOGIN         {login loginUsr;loginUsr.iniciarSession(usuarios,discos,loginParametros);for(int i=0;i<sizeof(loginParametros)/sizeof(loginParametros[0]);i++){loginParametros[i]="";}}
+        | LOGOUT        {logout logoutUsuario;logoutUsuario.cerrarSession(usuarios);}
         | COMENTARIO    {}        
         ;
 
@@ -216,6 +219,10 @@ PARAMETROS_LOGIN  :     guion tk_usr igual identificador    {loginParametros[0]=
                   |     guion tk_id igual identificador     {loginParametros[2]=$4;}
                   ;
 
+
+
+LOGOUT      :     tk_logout
+            ;
 
 
 

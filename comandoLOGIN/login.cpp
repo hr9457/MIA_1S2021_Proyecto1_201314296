@@ -7,19 +7,27 @@ login::login()
 // funcion para el recibimiento de los parametros para el comando login
 void login::iniciarSession(vector<usuarioConectado>&listado,vector<montajeDisco>&listadoDiscos,string parametros[])
 {   
-    // verificacion y actualizacion
-    if(verificacionParametros(parametros))
-    {   
-        // existencia del identificador
-        if(FUN.busquedaParticion(listadoDiscos,this->identificador))
-        {
-            //addUsuario(listado,this->usuario,this->password,this->identificador);
-            verificacionUsuario(listadoDiscos,this->identificador,this->usuario,this->password);
+    if(listado.size() < 1)
+    {
+        // verificacion y actualizacion
+        if(verificacionParametros(parametros))
+        {   
+            // existencia del identificador
+            if(FUN.busquedaParticion(listadoDiscos,this->identificador))
+            {
+                //addUsuario(listado,this->usuario,this->password,this->identificador);
+                verificacionUsuario(listadoDiscos,this->identificador,this->usuario,this->password,listado);
+            }
+            else
+            {
+                cout<<"--->El id del Disco no se encuntra montado<---"<<endl;
+            }
         }
-        else
-        {
-            cout<<"--->El id del Disco no se encuntra montado<---"<<endl;
-        }
+    }
+    else
+    {
+        cout<<endl;
+        cout<<"---->Ya hay un usuario con Session activa<----"<<endl;
     }
 }
 
@@ -64,7 +72,7 @@ string login::eliminacionComillas(string palabra)
 
 
 // metodo para la verficacon de la existencia del usuario en la particion
-void login::verificacionUsuario(vector<montajeDisco>&listado,string identificador,string usr,string pass)
+void login::verificacionUsuario(vector<montajeDisco>&listado,string identificador,string usr,string pass,vector<usuarioConectado>&listaUsuarios)
 {
     string rutaArchivo = FUN.busquedaPathParticion(listado,identificador);
     int part_star = FUN.busquedaStarParticion(listado,identificador);
@@ -90,13 +98,17 @@ void login::verificacionUsuario(vector<montajeDisco>&listado,string identificado
     fread(&archivoUser,sizeof(archivoUser),1,archivo);
     // ------Busqueda del para inicio de sescion de un usuario
     string contenidoBloque = FUN.convertirArreglochar(archivoUser.b_content);
-    if(FUN.buscarDentroVector(contenidoBloque,usr))
+    if(FUN.buscarDentroVector(contenidoBloque,usr) && FUN.buscarDentroVector(contenidoBloque,pass))
     {
-        cout<<"Usuario Econtrado"<<endl;
+        cout<<endl;
+        cout<<"--->Session Activa<---"<<endl;
+        // agregacon del usuario a la lista
+        addUsuario(listaUsuarios,usr,pass,identificador);
     }
-    if(FUN.buscarDentroVector(contenidoBloque,pass))
+    else
     {
-        cout<<"Contrasenia encontrada"<<endl;
+        cout<<endl;
+        cout<<"--->El usuario no existe<---"<<endl;
     }
 }
 
@@ -108,4 +120,12 @@ void login::addUsuario(vector<usuarioConectado>&listado,string usr,string pwd,st
     strcpy(nuevoUsuario.usuario,usr.c_str());
     strcpy(nuevoUsuario.password,pwd.c_str());
     strcpy(nuevoUsuario.identificador,identificador.c_str());
+    listado.push_back(nuevoUsuario);
+    // ----Impresion de los usuarios montados
+    cout<<"--->Listado de los usuarios Activos<---"<<endl;
+    for(int usuario=0; usuario<listado.size(); usuario++)
+    {
+        cout<<"--->Usuario: "<<listado[usuario].usuario<<endl;
+        cout<<"--->Id de Disco: "<<listado[usuario].identificador<<endl<<endl;
+    }
 }

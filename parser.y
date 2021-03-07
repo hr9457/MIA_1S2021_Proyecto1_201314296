@@ -16,6 +16,7 @@
 #include "comandoMOUNT/mount.h"
 #include "comandoUNMOUNT/unmount.h"
 #include "comandoMKFS/mkfs.h"
+#include "comandoLOGIN/login.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -37,6 +38,8 @@ vector<montajeDisco> discos;
 int numeroDisco = 0;
 string identificadorUNMOUNT;
 string mkfsParametros[3];
+vector<usuarioConectado> usuarios; 
+string loginParametros[3];
 
 int yyerror(const char* mens)
 {
@@ -67,6 +70,7 @@ char TEXT[256];
 %token<TEXT> tk_mount;
 %token<TEXT> tk_unmount;
 %token<TEXT> tk_mkfs;
+%token<TEXT> tk_login;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -78,6 +82,8 @@ char TEXT[256];
 %token<TEXT> tk_type;
 %token<TEXT> tk_id;
 %token<TEXT> tk_fs;
+%token<TEXT> tk_usr;
+%token<TEXT> tk_pwd;
 
 %token<TEXT> guion;
 %token<TEXT> igual;
@@ -113,6 +119,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | MOUNT         {mount montaje;montaje.montarDisco(mountParametros,discos,numeroDisco);for(int i=0;i<sizeof(mountParametros)/sizeof(mountParametros[0]);i++){mountParametros[i]="";}}
         | UNMOUNT       {unmount desmontaje;desmontaje.desmontarDisco(discos,identificadorUNMOUNT);} 
         | MKFS          {mkfs sisArchivos;sisArchivos.crearSistemaArchivos(mkfsParametros,discos);for(int i=0;i<sizeof(mkfsParametros)/sizeof(mkfsParametros[0]);i++){mkfsParametros[i]="";}}   
+        | LOGIN         {login loginUsr;loginUsr.iniciarSession(usuarios,discos,loginParametros);for(int i=0;i<sizeof(loginParametros)/sizeof(loginParametros[0]);i++){loginParametros[i]="";}}
         | COMENTARIO    {}        
         ;
 
@@ -191,6 +198,25 @@ PARAMETROS_MKFS   :     guion tk_id igual identificador     {mkfsParametros[0]=$
                   |     guion tk_type igual identificador   {mkfsParametros[1]=$4;}
                   |     guion tk_fs igual identificador     {mkfsParametros[2]=$4;}
                   ;
+
+
+
+
+LOGIN :     tk_login LIST_PARAMETROS_LOGIN
+      ;
+
+LIST_PARAMETROS_LOGIN   : LIST_PARAMETROS_LOGIN PARAMETROS_LOGIN
+                        | PARAMETROS_LOGIN
+                        ;
+
+PARAMETROS_LOGIN  :     guion tk_usr igual identificador    {loginParametros[0]=$4;}
+                  |     guion tk_usr igual cadena           {loginParametros[0]=$4;}
+                  |     guion tk_pwd igual entero           {loginParametros[1]=$4;}
+                  |     guion tk_pwd igual cadena           {loginParametros[1]=$4;}
+                  |     guion tk_id igual identificador     {loginParametros[2]=$4;}
+                  ;
+
+
 
 
 EXEC : tk_exec guion tk_path igual cadena     {execParametro=$5;}

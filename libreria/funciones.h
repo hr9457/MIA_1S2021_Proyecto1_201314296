@@ -31,6 +31,8 @@ public:
     int busquedaSizeParticion(vector<montajeDisco>&,string);
     int busquedaStarParticion(vector<montajeDisco>&,string);
     string busquedaPathParticion(vector<montajeDisco>&,string);
+    string convertirArreglochar(char[]);
+    bool buscarDentroVector(string,string);
 };
 
 #endif // FUNCIONES_H

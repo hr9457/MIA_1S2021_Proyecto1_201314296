@@ -142,5 +142,16 @@ struct montajeDisco
 };
 
 
+/* Estructura para iniciar session  */
+struct usuarioConectado
+{
+    /* data */
+    char usuario[20];
+    char password[20];
+    char identificador[50];
+};
+
+
+
 
 #endif // STRUCTS_H

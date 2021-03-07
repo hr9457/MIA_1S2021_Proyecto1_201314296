@@ -231,3 +231,43 @@ string funciones::busquedaPathParticion(vector<montajeDisco>&listado,string iden
     }
     return path;
 }
+
+
+
+
+// metodo para convertir un cadena de caracteres tipo char[] = {""}
+string funciones::convertirArreglochar(char contenido[])
+{
+    string palabra;
+    char *informacion[]={};
+    informacion[0] = contenido;
+    palabra = informacion[0];
+    return palabra;
+}
+
+// metodo para buscar la existencia de un usuario y su password esten correctos
+bool funciones::buscarDentroVector(string listado,string palabra)
+{
+    string frase;
+    // quitar los saltos de linea
+    for(int i=0; i<listado.size(); i++)
+    {
+        if(listado[i] != '\n')
+        {
+            frase += listado[i];
+        }
+    }
+    // cout<<frase<<endl;
+    vector<string> fraseSeparada =  split(frase,',');
+    //
+    for(int elemento=0; elemento<fraseSeparada.size(); elemento++)
+    {
+        if(fraseSeparada[elemento] == palabra)
+        {            
+            return true;
+        }
+    }
+    return false;
+}
+
+

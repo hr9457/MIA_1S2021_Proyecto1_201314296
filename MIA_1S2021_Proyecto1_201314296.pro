@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     comandoUNMOUNT/unmount.cpp \
     comandoMKFS/mkfs.cpp \
     comandoLOGIN/login.cpp \
-    comandoLOGOUT/logout.cpp
+    comandoLOGOUT/logout.cpp \
+    comandoMKGRP/mkgrp.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -54,4 +55,5 @@ HEADERS += \
     comandoUNMOUNT/unmount.h \
     comandoMKFS/mkfs.h \
     comandoLOGIN/login.h \
-    comandoLOGOUT/logout.h
+    comandoLOGOUT/logout.h \
+    comandoMKGRP/mkgrp.h

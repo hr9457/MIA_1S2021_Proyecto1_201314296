@@ -18,6 +18,7 @@
 #include "comandoMKFS/mkfs.h"
 #include "comandoLOGIN/login.h"
 #include "comandoLOGOUT/logout.h"
+#include "comandoMKGRP/mkgrp.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -41,6 +42,7 @@ string identificadorUNMOUNT;
 string mkfsParametros[3];
 vector<usuarioConectado> usuarios; 
 string loginParametros[3];
+string mkgrpParametros[1];
 
 int yyerror(const char* mens)
 {
@@ -73,6 +75,7 @@ char TEXT[256];
 %token<TEXT> tk_mkfs;
 %token<TEXT> tk_login;
 %token<TEXT> tk_logout;
+%token<TEXT> tk_mkgrp;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -123,6 +126,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | MKFS          {mkfs sisArchivos;sisArchivos.crearSistemaArchivos(mkfsParametros,discos);for(int i=0;i<sizeof(mkfsParametros)/sizeof(mkfsParametros[0]);i++){mkfsParametros[i]="";}}   
         | LOGIN         {login loginUsr;loginUsr.iniciarSession(usuarios,discos,loginParametros);for(int i=0;i<sizeof(loginParametros)/sizeof(loginParametros[0]);i++){loginParametros[i]="";}}
         | LOGOUT        {logout logoutUsuario;logoutUsuario.cerrarSession(usuarios);}
+        | MKGRP         {mkgrp crear;crear.crearGrupo(usuarios,mkgrpParametros,discos);for(int i=0;i<sizeof(mkgrpParametros)/sizeof(mkgrpParametros[0]);i++){mkgrpParametros[i]="";}}
         | COMENTARIO    {}        
         ;
 
@@ -223,6 +227,17 @@ PARAMETROS_LOGIN  :     guion tk_usr igual identificador    {loginParametros[0]=
 
 LOGOUT      :     tk_logout
             ;
+
+
+
+MKGRP :      tk_mkgrp PARAMETROS_MKGRP     {}
+      ;
+
+
+PARAMETROS_MKGRP  :     guion tk_name igual identificador   {mkgrpParametros[0]=$4;}
+                  |     guion tk_name igual cadena          {mkgrpParametros[0]=$4;}
+
+
 
 
 

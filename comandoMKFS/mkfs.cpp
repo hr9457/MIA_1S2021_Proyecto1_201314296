@@ -311,6 +311,7 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     fwrite(&SP,sizeof(SP),1,archivo);
     //---->datos para los inicios de los bloque y inodos nuevos a escribir
     inicioParaInodo = SP.s_inode_start;
+    int inicioParaInodo2 = SP.s_inode_start;
     inicioParaBMInodo = SP.s_bm_inode_start;
     inicioParaBloque = SP.s_block_start;
     inicioParaBMBloque = SP.s_bm_block_start;
@@ -364,8 +365,9 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     // primer apuntador hacia un bloque 
     raiz.i_block[0] = 0;
 
-    //-----Bloque para la carpeta raiz
+    // -----Bloque para la carpeta raiz
     bloque_carpetas blockCarpetaRaiz;
+    // --------------------------------
     content contentCarpetaRaiz;
     // bloque actual
     strcpy(contentCarpetaRaiz.b_name,".");
@@ -380,22 +382,28 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     contentCarpetaRaiz.b_inodo = 1;
     blockCarpetaRaiz.b_content[2] = contentCarpetaRaiz;
 
+    cout<<blockCarpetaRaiz.b_content[2].b_inodo<<endl;
+    cout<<blockCarpetaRaiz.b_content[2].b_name<<endl;
+
     //----Escribo el InodoRaiz 0
+    cout<<"inicio del inodod raiz "<<inicioParaInodo<<endl;
     fseek(archivo,inicioParaInodo,SEEK_SET);
-    inicioParaInodo = inicioParaInodo + sizeof(inodo);
-    fwrite(&raiz,sizeof(raiz),1,archivo);
+    fwrite(&raiz,sizeof(raiz),1,archivo); 
     fseek(archivo,inicioParaBMInodo,SEEK_SET);//bitmap
-    inicioParaBMInodo++;
     fwrite(&bmOcupado,sizeof(bmOcupado),1,archivo);//bitmap
+    // -------------------------------------------
+    inicioParaBMInodo++;
+    inicioParaInodo = inicioParaInodo + sizeof(inodo);  
+    cout<<"incio para el otro indo "<<inicioParaInodo<<endl;     
 
     //----Escribo el bloque 0
+    cout<<"inicio del bloque 0 raiz "<<inicioParaBloque<<endl;
     fseek(archivo,inicioParaBloque,SEEK_SET);
-    inicioParaBloque = inicioParaBloque + sizeof(bloque_archivos);
     fwrite(&blockCarpetaRaiz,sizeof(blockCarpetaRaiz),1,archivo);
     fseek(archivo,inicioParaBMBloque,SEEK_SET);//bitmap
-    inicioParaBMBloque++;
     fwrite(&bmOcupado,sizeof(bmOcupado),1,archivo);//bitmap
-
+    inicioParaBloque = inicioParaBloque + sizeof(bloque_archivos);   
+    inicioParaBMBloque++;  
 
 
     //------INODO PARA USERT.TXT
@@ -415,14 +423,15 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     inodoUsers.i_perm = 664;
     //apuntador
     inodoUsers.i_block[0] = 1;
+
     //----Creacion del bloque 1
     bloque_archivos archivoUser;
     strcpy(archivoUser.b_content,datosarchivo);
 
-    //------Escritura del Inodouser 1
+    // //------Escritura del Inodouser 1
     fseek(archivo,inicioParaInodo,SEEK_SET);
     fwrite(&inodoUsers,sizeof(inodoUsers),1,archivo);
-    //bitmap inodo
+    // //bitmap inodo
     fseek(archivo,inicioParaBMInodo,SEEK_SET);
     fwrite(&bmOcupado,sizeof(bmOcupado),1,archivo);
 

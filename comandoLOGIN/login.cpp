@@ -76,40 +76,129 @@ void login::verificacionUsuario(vector<montajeDisco>&listado,string identificado
 {
     string rutaArchivo = FUN.busquedaPathParticion(listado,identificador);
     int part_star = FUN.busquedaStarParticion(listado,identificador);
-    superBloque SPlectura;
+    // cout<<"Ruta del archivo de lectura "<<rutaArchivo<<endl;
+    // cout<<"Inicio de la particion donde hacer el login "<<part_star<<endl;
+    
     FILE *archivo;
-    // apertura del disco para lectura y actualizacion rb+
-    archivo = fopen(rutaArchivo.c_str(),"rb+");    
+    archivo = fopen(rutaArchivo.c_str(),"rb+");
     if(archivo==NULL)
         exit(1);
-    // lectura del SUPERBLOQUE y su informacion
-    fseek(archivo,part_star,SEEK_SET);
-    fread(&SPlectura,sizeof(SPlectura),1,archivo);
-    // incio de los bloques escritos en la particion
-    int inicioBloques = SPlectura.s_block_start;
-    cout<<"Inicio de los Bloque en la particon es: "<<inicioBloques<<endl;
 
-    //---posicion en el inicio de los bloque para buscar el bloque con la informaciond e los usuarios
-    fseek(archivo,inicioBloques,SEEK_SET);
-    inicioBloques = inicioBloques + sizeof(bloque_carpetas);
-    fseek(archivo,inicioBloques,SEEK_SET);//incio del bloque user
-    // bloque user
-    bloque_archivos archivoUser;
-    fread(&archivoUser,sizeof(archivoUser),1,archivo);
-    // ------Busqueda del para inicio de sescion de un usuario
-    string contenidoBloque = FUN.convertirArreglochar(archivoUser.b_content);
-    if(FUN.buscarDentroVector(contenidoBloque,usr) && FUN.buscarDentroVector(contenidoBloque,pass))
+    superBloque SP;
+    fseek(archivo,part_star,SEEK_SET);
+    fread(&SP,sizeof(SP),1,archivo);
+
+    inodo raiz;
+    fseek(archivo,SP.s_inode_start,SEEK_SET);
+    fread(&raiz,sizeof(raiz),1,archivo);
+
+    // ----- algoritmo de busueda para el inodo
+    //--------lo que voy a buscar
+    int inicio_Inodos = SP.s_inode_start;
+    int inicio_Bloques = SP.s_block_start;
+    bloque_carpetas bloque_busqueda;
+    char archivoUser[] = "user.txt"; 
+    int inodoDelArchivo=-1;  
+
+    // ------------ Algoritmo de busqueda del inodo de lo que se quiere buscar
+    // ------ busqueda en cada apuntador directo
+    for(int apuntador=0; apuntador<12; apuntador++)
     {
-        cout<<endl;
-        cout<<"--->Session Activa<---"<<endl;
-        // agregacon del usuario a la lista
-        addUsuario(listaUsuarios,usr,pass,identificador);
+        if(raiz.i_block[apuntador] != -1)
+        {
+            // ---- numero de bloque localizado
+            int numero_bloque = raiz.i_block[apuntador];
+            // cout<<"***Numero bloque a revisar"<<numero_bloque<<endl;
+
+            // ------ me ubico en ese bloque
+            if(numero_bloque == 0)
+            {
+                // cout<<"***Boque cero"<<endl;
+                //----- bloque cero
+                fseek(archivo,inicio_Bloques,SEEK_SET);
+                fread(&bloque_busqueda,sizeof(bloque_busqueda),1,archivo);
+                //------ busqueda en cada apuntador del bloque
+                for(int i=0;i<4;i++)
+                {
+                    //cout<<"***Bloque apuntador "<<i<<endl;
+                    if(strcmp(bloque_busqueda.b_content[i].b_name,archivoUser)==0)
+                    {
+                        // //---- inodo donde esta el archivo user.txt
+                        // cout<<bloque_busqueda.b_content[i].b_name<<endl;
+                        // cout<<bloque_busqueda.b_content[i].b_inodo<<endl;
+                        inodoDelArchivo = bloque_busqueda.b_content[i].b_inodo;
+                        break;
+                    }//fin if
+
+                }//fin for
+                //---- reinicio 
+                inicio_Bloques = SP.s_block_start;
+
+            }// fin del if ==0
+            else
+            {
+                //---- ubicacion en el bloque a revisar
+                inicio_Bloques = numero_bloque * sizeof(bloque_carpetas);
+                fseek(archivo,inicio_Bloques,SEEK_SET);
+                fread(&bloque_busqueda,sizeof(bloque_busqueda),1,archivo);
+                // ----- busqueda en cada apuntador de ese bloque
+                for(int i=0;i<4;i++)
+                {
+                    if(strcmp(bloque_busqueda.b_content[i].b_name,archivoUser)==0)
+                    {
+                        inodoDelArchivo = bloque_busqueda.b_content[i].b_inodo;
+                        break;
+                    }
+                }
+                //---- reinicio 
+                inicio_Bloques = SP.s_block_start;
+
+            }
+
+        }// fin del if verifica que nosea -1
+    }// fin del for principal
+
+
+    // cout<<"Inodo del archivo: "<<inodoDelArchivo<<endl;
+    //------busqueda en los apuntadores de ese inodo
+    int inodoEnontrado = SP.s_inode_start + (inodoDelArchivo * sizeof(inodo));
+    bool usuarioEncontrado = false;
+
+    // ----- busco en en cada apuntador del nodo
+    inodo inodoArchivoUsr;
+    fseek(archivo,inodoEnontrado,SEEK_SET);
+    fread(&inodoArchivoUsr,sizeof(inodoArchivoUsr),1,archivo);
+    for(int apU=0;apU<12;apU++)
+    {
+        if(inodoArchivoUsr.i_block[apU] != -1)
+        {
+            bloque_archivos archivoDeUsuarios;
+            int inicioBusquedaArchivo = SP.s_block_start + (inodoArchivoUsr.i_block[apU]*sizeof(bloque_archivos));
+            fseek(archivo,inicioBusquedaArchivo,SEEK_SET);
+            fread(&archivoDeUsuarios,sizeof(archivoDeUsuarios),1,archivo);
+            // cout<<archivoDeUsuarios.b_content<<endl;
+            // ---- saco el contenido del bloque para buscar dentro de el
+            string contenidoBloque = FUN.convertirArreglochar(archivoDeUsuarios.b_content);
+            if(FUN.buscarDentroVector(contenidoBloque,usr) && FUN.buscarDentroVector(contenidoBloque,pass))
+            {
+                cout<<endl;
+                cout<<"--->Session Activa<---"<<endl;
+                cout<<"--->Usuario y password coinciden<---"<<endl;
+                // agregacon del usuario a la lista
+                usuarioEncontrado = true;
+                addUsuario(listaUsuarios,usr,pass,identificador);
+                break;                
+            }
+        }
     }
-    else
+
+    if(usuarioEncontrado==false)
     {
         cout<<endl;
         cout<<"--->El usuario no existe<---"<<endl;
     }
+
+    fclose(archivo); 
 }
 
 

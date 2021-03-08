@@ -111,6 +111,14 @@ struct bloque_archivos
 };
 
 
+/* Bloque de apuntadores indirectos */
+struct bloque_apuntadores
+{
+    /* data */
+    int b_pointers[16];
+};
+
+
 /* Estructura par las particiones en blaco */
 struct blackPartition
 {

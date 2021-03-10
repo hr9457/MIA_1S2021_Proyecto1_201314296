@@ -33,6 +33,7 @@ public:
     string busquedaPathParticion(vector<montajeDisco>&,string);
     string convertirArreglochar(char[]);
     bool buscarDentroVector(string,string);
+    int buscarInodoArchivoCarpeta(FILE*,int,char[]);
 };
 
 #endif // FUNCIONES_H

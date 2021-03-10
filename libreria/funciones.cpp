@@ -271,3 +271,64 @@ bool funciones::buscarDentroVector(string listado,string palabra)
 }
 
 
+
+
+// metodo para del inodo que pertene al archivo y carpeta
+int funciones::buscarInodoArchivoCarpeta(FILE *archivo,int part_star,char texto[])
+{
+    // lectura del superbloque del archivo que se manda
+    superBloque SP;
+    fseek(archivo,part_star,SEEK_SET);
+    fread(&SP,sizeof(SP),1,archivo);
+
+    // ----lectura del primero inodo - inodo raiz
+    inodo raiz;
+    fseek(archivo,SP.s_inode_start,SEEK_SET);
+    fread(&raiz,sizeof(raiz),1,archivo);
+
+    // ----- variables para tener los inicios que me da el SP
+    int inicio_Inodos = SP.s_inode_start;
+    int inicio_Bloques = SP.s_block_start;
+    int inicio_bm_Bloques = SP.s_bm_block_start;
+    int inodoDelArchivoCarpeta = -1;
+    bloque_carpetas bloque_busqueda;
+
+
+    // ----- Algoritmo de busqueda
+    for(int apuntador=0; apuntador<12; apuntador++)
+    {
+        // --- revision si los apuntadores estan o no
+        if(raiz.i_block[apuntador] != -1)
+        {
+            // ---- numero de bloque en el inodo raiz
+            int numero_bloque = raiz.i_block[apuntador];
+            cout<<numero_bloque<<endl;
+            if(numero_bloque > 0){inicio_Bloques = numero_bloque * sizeof(bloque_carpetas);}
+
+            // --- posicion de inicio del bloque n
+            fseek(archivo,inicio_Bloques,SEEK_SET);
+            fread(&bloque_busqueda,sizeof(bloque_busqueda),1,archivo);
+
+            // --- lectura de cada uno de los apuntadores del bloque
+            for(int apuntadorBloque=0; apuntadorBloque<4; apuntadorBloque++)
+            {
+                if(bloque_busqueda.b_content[apuntadorBloque].b_inodo != -1)
+                {
+                    if(strcmp(bloque_busqueda.b_content[apuntadorBloque].b_name,texto)==0)
+                    {
+                        cout<<bloque_busqueda.b_content[apuntadorBloque].b_name<<"<--->";
+                        cout<<bloque_busqueda.b_content[apuntadorBloque].b_inodo<<endl;
+                        inodoDelArchivoCarpeta = bloque_busqueda.b_content[apuntadorBloque].b_inodo;
+                        break;
+                    }                    
+                }
+            }
+            // --- reinicio 
+            inicio_Bloques = SP.s_block_start;
+        }
+    }
+
+    return inodoDelArchivoCarpeta;
+}
+
+

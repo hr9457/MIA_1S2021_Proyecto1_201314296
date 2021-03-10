@@ -209,6 +209,10 @@ void mkfs::sistemaExt2(vector<montajeDisco>&listado,string identificador)
     strcpy(contentCarpetaRaiz.b_name,"user.txt");
     contentCarpetaRaiz.b_inodo = 1;
     blockCarpetaRaiz.b_content[2] = contentCarpetaRaiz;
+    // bloque vacio
+    strcpy(contentCarpetaRaiz.b_name,"");
+    contentCarpetaRaiz.b_inodo = -1;
+    blockCarpetaRaiz.b_content[3] = contentCarpetaRaiz;
 
     //----Escribo el InodoRaiz 0
     fseek(archivo,inicioParaInodo,SEEK_SET);
@@ -381,6 +385,10 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     strcpy(contentCarpetaRaiz.b_name,"user.txt");
     contentCarpetaRaiz.b_inodo = 1;
     blockCarpetaRaiz.b_content[2] = contentCarpetaRaiz;
+    // bloque vacio
+    strcpy(contentCarpetaRaiz.b_name,"");
+    contentCarpetaRaiz.b_inodo = -1;
+    blockCarpetaRaiz.b_content[3] = contentCarpetaRaiz;
 
     cout<<blockCarpetaRaiz.b_content[2].b_inodo<<endl;
     cout<<blockCarpetaRaiz.b_content[2].b_name<<endl;

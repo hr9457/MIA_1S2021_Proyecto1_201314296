@@ -34,6 +34,8 @@ public:
     string convertirArreglochar(char[]);
     bool buscarDentroVector(string,string);
     int buscarInodoArchivoCarpeta(FILE*,int,char[]);
+    void lineaAlinea();
+    string concatenarArchivoTexto(FILE*,int,inodo,char[],int);
 };
 
 #endif // FUNCIONES_H

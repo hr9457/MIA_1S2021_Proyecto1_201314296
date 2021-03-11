@@ -6,6 +6,7 @@
 #include <string.h>
 #include <vector>
 #include <cstring> 
+#include <stdio.h>
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 using namespace std;

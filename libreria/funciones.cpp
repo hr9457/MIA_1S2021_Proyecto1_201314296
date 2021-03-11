@@ -332,3 +332,67 @@ int funciones::buscarInodoArchivoCarpeta(FILE *archivo,int part_star,char texto[
 }
 
 
+
+// metodo para tener la lectura del archivo txt linea por linea
+void funciones::lineaAlinea()
+{
+
+}
+
+
+// funcion par concatenar todas las lineas de un archivo de texto y insertar en un bloque
+string funciones::concatenarArchivoTexto(FILE *archivo,int part_star,inodo inodoTexto,char nuevo[],int longitudNuevo)
+{
+    string texto;
+
+    // lectura del superbloque del archivo que se manda
+    superBloque SP;
+    fseek(archivo,part_star,SEEK_SET);
+    fread(&SP,sizeof(SP),1,archivo);
+
+    // ----- inicios de los bloques
+    int inicio_bloques = SP.s_block_start;
+    // cout<<"inicio de los bloques: "<<inicio_bloques<<endl;
+
+    // ---- recorrer cada espacio del apuntador directo para ver si tiene algo y concatenar
+    for(int apuntador = 0; apuntador<12; apuntador++)
+    {
+        // cout<<inodoTexto.i_block[apuntador]<<endl;
+        // ---- recorro cada apuntador del inodo del archivo de texto
+        if(inodoTexto.i_block[apuntador] != -1)
+        {
+            cout<<"bloque examinado"<<endl;
+            // --- numero del bloque del inodo del arhivo de texto
+            int numero_bloque = inodoTexto.i_block[apuntador];
+            int inicio_bloque_texto = inicio_bloques + ( numero_bloque * sizeof(bloque_archivos) );
+            // cout<<"Numero de bloque de texto: "<<numero_bloque<<endl; 
+            // cout<<"Poisicion del bloque de texto: "<<inicio_bloque_texto<<endl; 
+
+            // ----- lectura y datos del bloque
+            bloque_archivos bloque_texto;
+            fseek(archivo,inicio_bloque_texto,SEEK_SET);
+            fread(&bloque_texto,sizeof(bloque_texto),1,archivo);
+            texto += bloque_texto.b_content;
+            int longitudTexto = texto.size();            
+
+            // --- revision en el bloque si aun hay espacio
+            if(longitudTexto<63)
+            {
+                // --- cuantos caracters se perminten aun 
+                int caracters_permitidos = 63 - longitudTexto;
+                cout<<"Caracters permitod en el bloque son: "<<caracters_permitidos<<endl;
+                // ------ colocar los caracteres
+                if(caracters_permitidos>longitudNuevo)
+                {
+                    strcat(bloque_texto.b_content,nuevo);
+                    cout<<bloque_texto.b_content<<endl;
+                    // ---- actualizacion en el bloque 
+                    fseek(archivo,inicio_bloque_texto,SEEK_SET);
+                    fwrite(&bloque_texto,sizeof(bloque_texto),1,archivo);
+                }
+            }
+        }
+    }
+    // ----- inserto en archio de texto lo que se quiere inisertar
+    return texto;
+}

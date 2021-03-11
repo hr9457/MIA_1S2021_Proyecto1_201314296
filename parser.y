@@ -19,6 +19,10 @@
 #include "comandoLOGIN/login.h"
 #include "comandoLOGOUT/logout.h"
 #include "comandoMKGRP/mkgrp.h"
+#include "comandoMKFILE/mkfile.h"
+#include "comandoMKDIR/mkdir.h"
+#include "comandoPAUSA/pausa.h"
+#include "comandoREP/reportes.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -43,6 +47,9 @@ string mkfsParametros[3];
 vector<usuarioConectado> usuarios; 
 string loginParametros[3];
 string mkgrpParametros[1];
+string mkfileParametros[4];
+string mkdirParametros[2];
+string repParametros[4];
 
 int yyerror(const char* mens)
 {
@@ -76,6 +83,9 @@ char TEXT[256];
 %token<TEXT> tk_login;
 %token<TEXT> tk_logout;
 %token<TEXT> tk_mkgrp;
+%token<TEXT> tk_mkfile;
+%token<TEXT> tk_mkdir;
+%token<TEXT> tk_pause;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -89,6 +99,9 @@ char TEXT[256];
 %token<TEXT> tk_fs;
 %token<TEXT> tk_usr;
 %token<TEXT> tk_pwd;
+%token<TEXT> tk_r;
+%token<TEXT> tk_p;
+%token<TEXT> tk_rep;
 
 %token<TEXT> guion;
 %token<TEXT> igual;
@@ -127,6 +140,10 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | LOGIN         {login loginUsr;loginUsr.iniciarSession(usuarios,discos,loginParametros);for(int i=0;i<sizeof(loginParametros)/sizeof(loginParametros[0]);i++){loginParametros[i]="";}}
         | LOGOUT        {logout logoutUsuario;logoutUsuario.cerrarSession(usuarios);}
         | MKGRP         {mkgrp crear;crear.crearGrupo(usuarios,mkgrpParametros,discos);for(int i=0;i<sizeof(mkgrpParametros)/sizeof(mkgrpParametros[0]);i++){mkgrpParametros[i]="";}}
+        | PAUSE         {pausa pausarSystem; pausarSystem.pausarSistema();}
+        | REP           {reportes graficos; graficos.generarReporte(repParametros);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
+        | MKFILE        {}
+        | MKDIR         {}
         | COMENTARIO    {}        
         ;
 
@@ -236,7 +253,69 @@ MKGRP :      tk_mkgrp PARAMETROS_MKGRP     {}
 
 PARAMETROS_MKGRP  :     guion tk_name igual identificador   {mkgrpParametros[0]=$4;}
                   |     guion tk_name igual cadena          {mkgrpParametros[0]=$4;}
+                  ;
 
+
+
+
+
+
+MKFILE      :     tk_mkfile LIST_PARAMETROS_MKFILE
+            ;
+
+LIST_PARAMETROS_MKFILE  :     LIST_PARAMETROS_MKFILE PARAMETROS_MKFILE
+                        |     PARAMETROS_MKFILE
+                        ;     
+
+PARAMETROS_MKFILE :     guion tk_path igual tk_ruta   {mkfileParametros[0]=$4;}
+                  |     guion tk_path igual cadena    {mkfileParametros[0]=$4;}
+                  |     guion tk_r                    {mkfileParametros[1]="true";}
+                  |     guion tk_size igual entero    {mkfileParametros[2]=$4;}
+                  ;
+
+
+
+
+
+MKDIR       :     tk_mkdir    LIST_PARAMETROS_MKDIR
+            ;
+
+
+LIST_PARAMETROS_MKDIR   :     LIST_PARAMETROS_MKDIR PARAMETROS_MKDIR
+                        |     PARAMETROS_MKDIR
+                        ;
+
+
+PARAMETROS_MKDIR  :     guion tk_path igual tk_ruta   {mkdirParametros[0]=$4;}
+                  |     guion tk_path igual cadena    {mkdirParametros[0]=$4;}
+                  |     guion tk_p                    {mkdirParametros[1]="true";}
+                  ;
+
+
+
+
+
+PAUSE :     tk_pause
+      ;
+
+
+
+REP   :     tk_rep LIST_PARAMETROS_REP
+      ;
+
+
+LIST_PARAMETROS_REP     : LIST_PARAMETROS_REP PARAMETROS_REP
+                        | PARAMETROS_REP
+                        ;
+
+
+PARAMETROS_REP    :     guion tk_name igual identificador   {repParametros[0]=$4;}
+                  |     guion tk_path igual tk_ruta         {repParametros[1]=$4;}
+                  |     guion tk_path igual cadena          {repParametros[1]=$4;}
+                  |     guion tk_id igual identificador     {repParametros[2]=$4;}
+                  |     guion tk_ruta igual identificador   {repParametros[3]=$4;}
+                  |     guion tk_ruta igual cadena          {repParametros[3]=$4;}
+                  ;
 
 
 

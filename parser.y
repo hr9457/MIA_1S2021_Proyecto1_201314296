@@ -141,7 +141,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | LOGOUT        {logout logoutUsuario;logoutUsuario.cerrarSession(usuarios);}
         | MKGRP         {mkgrp crear;crear.crearGrupo(usuarios,mkgrpParametros,discos);for(int i=0;i<sizeof(mkgrpParametros)/sizeof(mkgrpParametros[0]);i++){mkgrpParametros[i]="";}}
         | PAUSE         {pausa pausarSystem; pausarSystem.pausarSistema();}
-        | REP           {reportes graficos; graficos.generarReporte(repParametros);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
+        | REP           {reportes graficos; graficos.generarReporte(repParametros,usuarios,discos);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
         | MKFILE        {}
         | MKDIR         {}
         | COMENTARIO    {}        

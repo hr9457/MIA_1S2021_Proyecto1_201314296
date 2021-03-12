@@ -22,8 +22,8 @@ private:
     int totalBloques;
     int inicioParticion;
     int tamanioParticion;
-    char bmOcupado = '\1';
-    char bmDisponible = '\0';
+    char bmOcupado = '1';
+    char bmDisponible = '0';
 public:
     mkfs();
     void crearSistemaArchivos(string[],vector<montajeDisco>&);

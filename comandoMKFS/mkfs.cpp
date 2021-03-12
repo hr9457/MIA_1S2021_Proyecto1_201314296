@@ -150,10 +150,10 @@ void mkfs::sistemaExt2(vector<montajeDisco>&listado,string identificador)
     // Creacion del superBloque para la particion
     superBloque SP;
     SP.s_filesystem_tyep = 2;
-    SP.s_inodes_count = totalInodos -2;
-    SP.s_blocks_count = totalBloques-2;
-    SP.s_free_blocks_count = this->totalBloques;
-    SP.s_free_inodes_count =  this->totalInodos;
+    SP.s_inodes_count = totalInodos;
+    SP.s_blocks_count = totalBloques;
+    SP.s_free_blocks_count = this->totalBloques-2;
+    SP.s_free_inodes_count =  this->totalInodos-2;
     strcpy(SP.s_mtime,FUN.obtenerFechaHora().c_str());
     strcpy(SP.s_umtime,FUN.obtenerFechaHora().c_str());
     SP.s_mnt_count = 0;
@@ -176,6 +176,29 @@ void mkfs::sistemaExt2(vector<montajeDisco>&listado,string identificador)
     inicioParaBMInodo = SP.s_bm_inode_start;
     inicioParaBloque = SP.s_block_start;
     inicioParaBMBloque = SP.s_bm_block_start;
+
+
+    // ---- llenado del bitmap de inodos
+    int inicio_bm_inodos = SP.s_bm_inode_start;
+    int final_bm_inodos = SP.s_bm_block_start - SP.s_bm_inode_start;
+    char ocupado = '0';
+    fseek(archivo,inicio_bm_inodos,SEEK_SET);
+    for(int x=0;x<final_bm_inodos;x++)
+    {
+        fwrite(&ocupado,sizeof(ocupado),1,archivo);
+        inicio_bm_inodos++;
+        fseek(archivo,inicio_bm_inodos,SEEK_SET);
+    }
+    // ---- llenado del bitmap de bloques
+    int inicio_de_bloques = SP.s_bm_block_start;
+    int final_bm_bloques = SP.s_inode_start - SP.s_bm_block_start;
+    fseek(archivo,inicio_de_bloques,SEEK_SET);
+    for(int y=0;y<final_bm_bloques;y++)
+    {
+        fwrite(&ocupado,sizeof(ocupado),1,archivo);
+        inicio_de_bloques++;
+        fseek(archivo,inicio_de_bloques,SEEK_SET);
+    }
 
     //----- creacion del inodo para para la carpeta root
     inodo raiz;
@@ -292,10 +315,10 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     // Creacion del superBloque para la particion
     superBloque SP;
     SP.s_filesystem_tyep = 3;
-    SP.s_inodes_count = this->totalInodos -2;
-    SP.s_blocks_count = this->totalBloques-2;
-    SP.s_free_blocks_count = this->totalBloques;
-    SP.s_free_inodes_count =  this->totalInodos;
+    SP.s_inodes_count = this->totalInodos;
+    SP.s_blocks_count = this->totalBloques;
+    SP.s_free_blocks_count = this->totalBloques-2;
+    SP.s_free_inodes_count =  this->totalInodos-2;
     strcpy(SP.s_mtime,FUN.obtenerFechaHora().c_str());
     strcpy(SP.s_umtime,FUN.obtenerFechaHora().c_str());
     SP.s_mnt_count = 0;
@@ -351,6 +374,27 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     inicioJournal = inicioJournal + sizeof(journal);
     fwrite(&journalUsers,sizeof(journalUsers),1,archivo);
 
+    // ---- llenado del bitmap de inodos
+    int inicio_bm_inodos = SP.s_bm_inode_start;
+    int final_bm_inodos = SP.s_bm_block_start - SP.s_bm_inode_start;
+    char ocupado = '0';
+    fseek(archivo,inicio_bm_inodos,SEEK_SET);
+    for(int x=0;x<final_bm_inodos;x++)
+    {
+        fwrite(&ocupado,sizeof(ocupado),1,archivo);
+        inicio_bm_inodos++;
+        fseek(archivo,inicio_bm_inodos,SEEK_SET);
+    }
+    // ---- llenado del bitmap de bloques
+    int inicio_de_bloques = SP.s_bm_block_start;
+    int final_bm_bloques = SP.s_inode_start - SP.s_bm_block_start;
+    fseek(archivo,inicio_de_bloques,SEEK_SET);
+    for(int y=0;y<final_bm_bloques;y++)
+    {
+        fwrite(&ocupado,sizeof(ocupado),1,archivo);
+        inicio_de_bloques++;
+        fseek(archivo,inicio_de_bloques,SEEK_SET);
+    }
 
     //----- creacion del inodo para para la carpeta root
     inodo raiz;
@@ -390,11 +434,11 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     contentCarpetaRaiz.b_inodo = -1;
     blockCarpetaRaiz.b_content[3] = contentCarpetaRaiz;
 
-    cout<<blockCarpetaRaiz.b_content[2].b_inodo<<endl;
-    cout<<blockCarpetaRaiz.b_content[2].b_name<<endl;
+    // cout<<blockCarpetaRaiz.b_content[2].b_inodo<<endl;
+    // cout<<blockCarpetaRaiz.b_content[2].b_name<<endl;
 
     //----Escribo el InodoRaiz 0
-    cout<<"inicio del inodod raiz "<<inicioParaInodo<<endl;
+    // cout<<"inicio del inodod raiz "<<inicioParaInodo<<endl;
     fseek(archivo,inicioParaInodo,SEEK_SET);
     fwrite(&raiz,sizeof(raiz),1,archivo); 
     fseek(archivo,inicioParaBMInodo,SEEK_SET);//bitmap
@@ -402,10 +446,10 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     // -------------------------------------------
     inicioParaBMInodo++;
     inicioParaInodo = inicioParaInodo + sizeof(inodo);  
-    cout<<"incio para el otro indo "<<inicioParaInodo<<endl;     
+    // cout<<"incio para el otro indo "<<inicioParaInodo<<endl;     
 
     //----Escribo el bloque 0
-    cout<<"inicio del bloque 0 raiz "<<inicioParaBloque<<endl;
+    // cout<<"inicio del bloque 0 raiz "<<inicioParaBloque<<endl;
     fseek(archivo,inicioParaBloque,SEEK_SET);
     fwrite(&blockCarpetaRaiz,sizeof(blockCarpetaRaiz),1,archivo);
     fseek(archivo,inicioParaBMBloque,SEEK_SET);//bitmap

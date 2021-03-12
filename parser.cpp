@@ -1708,7 +1708,7 @@ yyreduce:
 
   case 16:
 #line 144 "parser.y"
-                        {reportes graficos; graficos.generarReporte(repParametros);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
+                        {reportes graficos; graficos.generarReporte(repParametros,usuarios,discos);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
 #line 1713 "parser.cpp"
     break;
 

@@ -60,6 +60,7 @@ void exec::cargarArchivo(string rutaArchivo)
             }
             fichero.close();
         }
+        cout<<endl;
         cout<<"-->Archivo cargado exitosamente"<<endl;
     }
     else

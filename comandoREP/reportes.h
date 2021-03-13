@@ -37,6 +37,9 @@ public:
     void reportBMindode(string,int);
     void reportBMbloque(string,int);
     void reportSP(string,int);
+    void reportTree(string,int);
+    void reportInode(string,int);
+    void reportBlock(string,int);
 };
 
 #endif // REPORTES_H

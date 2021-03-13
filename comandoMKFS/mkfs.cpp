@@ -160,8 +160,8 @@ void mkfs::sistemaExt2(vector<montajeDisco>&listado,string identificador)
     SP.s_magic = 0xEF53;
     SP.s_inode_size = sizeof(inodo);
     SP.s_block_size = sizeof(bloque_archivos);
-    SP.s_firts_ino = 0;
-    SP.s_first_blo = 0;
+    SP.s_firts_ino = 2;
+    SP.s_first_blo = 2;
     SP.s_bm_inode_start = this->inicioParticion + sizeof(superBloque);
     SP.s_bm_block_start = SP.s_bm_inode_start + this->totalInodos;
     SP.s_inode_start =  SP.s_bm_block_start + (3 * this->totalInodos);
@@ -325,8 +325,8 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     SP.s_magic = 0xEF53;
     SP.s_inode_size = sizeof(inodo);
     SP.s_block_size = sizeof(bloque_archivos);
-    SP.s_firts_ino = 0;
-    SP.s_first_blo = 0;
+    SP.s_firts_ino = 2;
+    SP.s_first_blo = 2;
     SP.s_bm_inode_start = this->inicioParticion + sizeof(superBloque) + (this->totalInodos * sizeof(journal));
     SP.s_bm_block_start = SP.s_bm_inode_start + this->totalInodos;
     SP.s_inode_start =  SP.s_bm_block_start + this->totalBloques;

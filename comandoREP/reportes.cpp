@@ -153,6 +153,14 @@ void reportes::generarTipoReporte(string reporte,vector<usuarioConectado>&usuari
     {
         reportSP(rutaArchivo,part_star);
     }
+    else if(reporte == "tree")
+    {
+        reportTree(rutaArchivo,part_star);
+    }
+    else if(reporte == "inode")
+    {
+
+    }
 }
 
 
@@ -250,15 +258,15 @@ string reportes::tipoConversion(string tipo)
     }
     else if(tipo == "jpg")
     {
-        return "-jpg";
+        return "-Tjpg";
     }
     else if(tipo == "pdf")
     {
-        return "-pdf";
+        return "-Tpdf";
     }
     else
     {
-        return "pdf";
+        return "-Tpdf";
     }
 }
 
@@ -484,6 +492,230 @@ void reportes::reportSP(string rutaArchivo,int part_star)
     {
         cout<<"--->No se ha expecifica el tipo de extension"<<endl;
     }
+}
+
+
+
+// ------ reporte del arbol que contiene la particion
+void reportes::reportTree(string rutaArchivo,int part_star)
+{
+    FILE *discoLectura;
+    discoLectura = fopen(rutaArchivo.c_str(),"rb+");
+    if(discoLectura==NULL)
+    {
+        fclose(discoLectura);
+        exit(1);        
+    }
+
+    // ---- incio de la particion 
+    superBloque SP;
+    // cout<<"inicio de la particion es: "<<part_star<<endl;
+    fseek(discoLectura,part_star,SEEK_SET);
+    fread(&SP,sizeof(SP),1,discoLectura);
+
+    // ------- datos
+    int cantidad_inodos_usados = SP.s_firts_ino;
+    int cantidad_bloque_usados = SP.s_first_blo;
+    int inicio_de_inodos = SP.s_inode_start;
+    int inicio_de_bloques = SP.s_block_start;
+
+
+    // ----------- estricutra del archivo dot del grafico
+    string ruta = descomponerRuta(this->path);
+    // cout<<ruta<<endl;
+    // cout<<nombreArchivoDot<<endl;
+    crearCarpetas(ruta);
+    // --- creacion del archivo dot 
+    string ruta_creacion_dot = ruta + "tree.dot";
+    ofstream archivo;
+    archivo.open(ruta_creacion_dot);
+    if(archivo.fail())
+    {
+        cout<<"--->Error en el archivo reporte MBR"<<endl;
+        archivo.close();
+        fclose(discoLectura);
+    }
+    archivo<<"digraph{"<<endl;
+    archivo<<" graph [pad=\"0.5\",nodesep=\"0.5\",ranksep=\"2\",splines=polyline]; "<<endl;
+    archivo<<" node [shape=plain]"<<endl;
+    archivo<<" rankdir=LR;"<<endl;
+
+    // --------------------------------------------------------------------------------
+    // ----------- INODOS
+    // --- cilclo para recorrer los bloques 
+    fseek(discoLectura,inicio_de_inodos,SEEK_SET);
+    for(int numero_inodo=0; numero_inodo<cantidad_inodos_usados; numero_inodo++)
+    {        
+        // ---- inodo por inodo
+        inodo inodoLectura;
+        fread(&inodoLectura,sizeof(inodoLectura),1,discoLectura);
+        int tipo_bloque = inodoLectura.i_type;
+        // ----------------------------------------------------------------------
+        archivo<<"INODO"<<numero_inodo<<"[label=<"<<endl;
+        archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+        archivo<<"<tr><td port=\"E\" ><i>Nombre</i></td><td><i>Valor</i></td></tr>"<<endl;
+        archivo<<"<tr><td>UID</td><td>"<<inodoLectura.i_uid<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>GID</td><td>"<<inodoLectura.i_gid<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>SIZE</td><td>"<<inodoLectura.i_size<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>ATIME</td><td>"<<inodoLectura.i_atime<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>CTIME</td><td>"<<inodoLectura.i_ctime<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>MTIME</td><td>"<<inodoLectura.i_mtime<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>TYPE</td><td>"<<tipo_bloque<<"</td></tr>"<<endl;
+        archivo<<"<tr><td>PERM</td><td>"<<inodoLectura.i_perm<<"</td></tr>"<<endl;
+        // ----------------------------------------------------------------------  
+        // ------ ciclo para recorrido de los apuntadores directos de cada inodo   
+        for(int pointerD=0; pointerD<12; pointerD++)
+        {
+            // ---------------------------------------------------------------------------------
+            archivo<<"<tr><td>APD</td><td  port=\""<<pointerD<<"\" >"<<inodoLectura.i_block[pointerD]<<"</td></tr>"<<endl;
+            // ---------------------------------------------------------------------------------                      
+        }// for de apuntadores directos
+        // ------ revision y posicionamiento al siguiente inodo
+        inicio_de_inodos = inicio_de_inodos + sizeof(inodo);
+        fseek(discoLectura,inicio_de_inodos,SEEK_SET);
+        // ------------------------------
+        archivo<<"</table>>];"<<endl;
+        archivo<<endl;
+    }
+    
+
+    // --------------------------------BLOQUES
+    inicio_de_inodos = SP.s_inode_start;
+    // --------------------------------------------------------------------------------
+    // --- cilclo para recorrer los bloques 
+    fseek(discoLectura,inicio_de_inodos,SEEK_SET);
+    for(int numero_inodo=0; numero_inodo<cantidad_inodos_usados; numero_inodo++)
+    {        
+        // ---- inodo por inodo
+        inodo inodoLectura;
+        fread(&inodoLectura,sizeof(inodoLectura),1,discoLectura);
+        int tipo_bloque = inodoLectura.i_type;
+        // ------ ciclo para recorrido de los apuntadores directos de cada inodo   
+        for(int pointerD=0; pointerD<12; pointerD++)
+        {
+            // bloque a examinar
+            int numero_bloque_inodo = inodoLectura.i_block[pointerD];
+            if(numero_bloque_inodo != -1)
+            {
+                // tipo 0 = carpeta, tipo 1 = archivo
+                if(tipo_bloque == 0)
+                {
+                    bloque_carpetas carpeta_lectura;
+                    inicio_de_bloques = inicio_de_bloques + ( numero_bloque_inodo * sizeof(bloque_carpetas) );
+                    fseek(discoLectura,inicio_de_bloques,SEEK_SET);
+                    fread(&carpeta_lectura,sizeof(carpeta_lectura),1,discoLectura);
+                    // ----------------------------------------------------------------
+                    char encabezado = 'E';
+                    archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
+                    archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+                    archivo<<"<tr><td port=\""<<encabezado<<"\" ><i>Nombre</i></td><td><i>Valor</i></td></tr>"<<endl;
+                    // ----------------------------------------------------------------
+                    for(int x=0; x<4; x++)
+                    {
+                        archivo<<"<tr><td>"<<carpeta_lectura.b_content[x].b_name<<"</td><td port=\""<<x<<"\" >"<<carpeta_lectura.b_content[x].b_inodo<<"</td></tr>"<<endl;
+                    }
+                    // ------------------------------------------------------------------
+                    archivo<<"</table>>];"<<endl;
+                    archivo<<endl;
+                    inicio_de_bloques = SP.s_block_start;
+                }
+                else if(tipo_bloque == 1)
+                {
+                    bloque_archivos archivo_lectura;
+                    inicio_de_bloques = inicio_de_bloques + ( numero_bloque_inodo * sizeof(bloque_carpetas) );
+                    fseek(discoLectura,inicio_de_bloques,SEEK_SET);
+                    fread(&archivo_lectura,sizeof(archivo_lectura),1,discoLectura);
+                    // cout<<archivo_lectura.b_content<<endl;
+                    char encabezado = 'E';
+                    // ----------------------------------------------------------------
+                    archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
+                    archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+                    archivo<<"<tr><td port=\""<<encabezado<<"\" ><i>Contenido</i></td></tr>"<<endl;
+                    archivo<<"<tr><td>"<<archivo_lectura.b_content<<"</td></tr>"<<endl;
+                    archivo<<"</table>>];"<<endl;
+                    archivo<<endl;
+                    // ----------------------------------------------------------------
+                    inicio_de_bloques = SP.s_block_start;
+                } 
+            }                       
+        }// for de apuntadores directos
+        // ------ revision y posicionamiento al siguiente inodo
+        inicio_de_inodos = inicio_de_inodos + sizeof(inodo);
+        fseek(discoLectura,inicio_de_inodos,SEEK_SET);
+    }
+
+    // ------------------------------------------------------------------------------------------------------
+    // ------------------------------
+    // APUNTADORES INODOS
+    archivo<<endl;
+    inicio_de_inodos = SP.s_inode_start;
+    // --------------------------------------------------------------------------------
+    // --- cilclo para recorrer los bloques 
+    fseek(discoLectura,inicio_de_inodos,SEEK_SET);
+    for(int numero_inodo=0; numero_inodo<cantidad_inodos_usados; numero_inodo++)
+    {        
+        // ---- inodo por inodo
+        inodo inodoLectura;
+        fread(&inodoLectura,sizeof(inodoLectura),1,discoLectura);
+        int tipo_bloque = inodoLectura.i_type;
+        // ------ ciclo para recorrido de los apuntadores directos de cada inodo   
+        for(int pointerD=0; pointerD<12; pointerD++)
+        {
+            // bloque a examinar
+            int numero_bloque_inodo = inodoLectura.i_block[pointerD];
+            if(numero_bloque_inodo != -1)
+            {
+                archivo<<"INODO"<<numero_inodo<<":"<<pointerD<<"-> BLOQUE"<<numero_bloque_inodo<<":E ;"<<endl;  
+                if(tipo_bloque == 0)
+                {
+                    bloque_carpetas carpeta_lectura;
+                    inicio_de_bloques = inicio_de_bloques + ( numero_bloque_inodo * sizeof(bloque_carpetas) );
+                    fseek(discoLectura,inicio_de_bloques,SEEK_SET);
+                    fread(&carpeta_lectura,sizeof(carpeta_lectura),1,discoLectura);
+                    // ----------------------------------------------------------------
+                    for(int x=0; x<4; x++)
+                    {
+                        if(strcmp(carpeta_lectura.b_content[x].b_name,"")==0 || strcmp(carpeta_lectura.b_content[x].b_name,".")==0
+                        || strcmp(carpeta_lectura.b_content[x].b_name,"..")==0)
+                        {                            
+                        }
+                        else
+                        {
+                            archivo<<"BLOQUE"<<numero_bloque_inodo<<":"<<x<<" -> INODO"<<carpeta_lectura.b_content[x].b_inodo<<":E;"<<endl;
+                        }
+                    }
+                    inicio_de_bloques = SP.s_block_start;
+                }              
+            }                       
+        }// for de apuntadores directos
+        // ------ revision y posicionamiento al siguiente inodo
+        inicio_de_inodos = inicio_de_inodos + sizeof(inodo);
+        fseek(discoLectura,inicio_de_inodos,SEEK_SET);
+    }
+    // ------------------------------------------------------------------------------------------------------
+    // ------------------------------
+    archivo<<endl;
+    archivo<<"}"<<endl;
+    archivo.close();
+    // ------ cierre
+    fclose(discoLectura);
+}
+
+
+// - reporte de los inodos
+void reportes::reportInode(string rutaArchivo,int part_star)
+{
+    // --------------------------------------------
+    FILE *discoLectura;
+    discoLectura = fopen(rutaArchivo.c_str(),"rb+");
+    if(discoLectura==NULL)
+    {
+        fclose(discoLectura);
+        exit(1);        
+    }
+    
+    // ---------------------------------------------
+    fclose(discoLectura);
 }
 
 // exec -path=/home/hector/prueba/calificacion.script

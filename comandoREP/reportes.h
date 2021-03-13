@@ -40,6 +40,8 @@ public:
     void reportTree(string,int);
     void reportInode(string,int);
     void reportBlock(string,int);
+    void reportJornali(string,int);
+    void reportDisk(string);
 };
 
 #endif // REPORTES_H

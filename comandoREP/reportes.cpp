@@ -707,6 +707,20 @@ void reportes::reportTree(string rutaArchivo,int part_star)
     archivo.close();
     // ------ cierre
     fclose(discoLectura);
+
+    // ---- conversion del archivo a tipo 
+    if(this->nombreArchivoDot != "")
+    {
+        vector<string> nombre_extesion = FUN.split(nombreArchivoDot,'.');
+        string tipo = tipoConversion(nombre_extesion[1]);
+        string comando = "dot " + tipo + " " + ruta_creacion_dot + " -o " + this->path;
+        // cout<<comando<<endl;
+        system(comando.c_str());
+    }
+    else
+    {
+        cout<<"--->No se ha expecifica el tipo de extension"<<endl;
+    } 
 }
 
 
@@ -808,6 +822,20 @@ void reportes::reportInode(string rutaArchivo,int part_star)
     archivo.close();
     // ---------------------------------------------
     fclose(discoLectura);
+
+    // ---- conversion del archivo a tipo 
+    if(this->nombreArchivoDot != "")
+    {
+        vector<string> nombre_extesion = FUN.split(nombreArchivoDot,'.');
+        string tipo = tipoConversion(nombre_extesion[1]);
+        string comando = "dot " + tipo + " " + ruta_creacion_dot + " -o " + this->path;
+        // cout<<comando<<endl;
+        system(comando.c_str());
+    }
+    else
+    {
+        cout<<"--->No se ha expecifica el tipo de extension"<<endl;
+    } 
 }
 
 
@@ -951,6 +979,20 @@ void reportes::reportBlock(string rutaArchivo,int part_star)
     archivo.close();
     // ---------------------------------------------
     fclose(discoLectura);
+
+    // ---- conversion del archivo a tipo 
+    if(this->nombreArchivoDot != "")
+    {
+        vector<string> nombre_extesion = FUN.split(nombreArchivoDot,'.');
+        string tipo = tipoConversion(nombre_extesion[1]);
+        string comando = "dot " + tipo + " " + ruta_creacion_dot + " -o " + this->path;
+        // cout<<comando<<endl;
+        system(comando.c_str());
+    }
+    else
+    {
+        cout<<"--->No se ha expecifica el tipo de extension"<<endl;
+    } 
 } 
 
 
@@ -973,10 +1015,79 @@ void reportes::reportJornali(string rutaArchivo,int part_star)
     fread(&SP,sizeof(SP),1,discoLectura);
     // ------- Datos
     int inicio_jornali = part_star + sizeof(superBloque);
+    int total_inodos = SP.s_inodes_count;
+    cout<<total_inodos<<endl;
     // cout<<inicio_jornali<<endl;
 
+    // 
+    // ----------- estricutra del archivo dot del grafico
+    string ruta = descomponerRuta(this->path);
+    // cout<<ruta<<endl;
+    // cout<<nombreArchivoDot<<endl;
+    crearCarpetas(ruta);
+    // --- creacion del archivo dot 
+    string ruta_creacion_dot = ruta + "journaling.dot";
+    ofstream archivo;
+    archivo.open(ruta_creacion_dot);
+    if(archivo.fail())
+    {
+        cout<<"--->Error en el archivo reporte MBR"<<endl;
+        archivo.close();
+        fclose(discoLectura);
+    }
+    archivo<<"digraph{"<<endl;
+    archivo<<" graph [pad=\"0.5\",nodesep=\"0.5\",ranksep=\"2\"]; "<<endl;
+    archivo<<" node [shape=plain]"<<endl;
+    archivo<<" rankdir=LR;"<<endl;
+    
+    // ---------------
+    // jornali de lectura
+    journal journal_lectura;
+    fseek(discoLectura,inicio_jornali,SEEK_SET);
+
+    archivo<<"JOURNALING [label=<"<<endl;
+    archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+    archivo<<"<tr><td>Operacon</td><td>Tipo</td><td>Nombre</td><td>Contenido</td><td>fecha</td><td>propietarios</td><td>permisos</td></tr>"<<endl;
+    for(int a=0; a<total_inodos; a++)
+    {
+        fread(&journal_lectura,sizeof(journal),1,discoLectura);
+        if(strcmp(journal_lectura.Journal_Tipo_Operacion,"")==0)
+        {}
+        else
+        {            
+            archivo<<"<tr><td>"<<journal_lectura.Journal_Tipo_Operacion<<"</td>";
+            archivo<<"<td>"<<journal_lectura.Journal_tipo<<"</td>";
+            archivo<<"<td>"<<journal_lectura.Journal_nombre<<"</td>";
+            archivo<<"<td>"<<journal_lectura.Journal_contenido<<"</td>";
+            archivo<<"<td>"<<journal_lectura.Journal_fecha<<"</td>";        
+            archivo<<"<td>"<<journal_lectura.Journal_propietario<<"</td>";
+            archivo<<"<td>"<<journal_lectura.Journal_permisos<<"</td></tr>";
+            inicio_jornali = inicio_jornali + sizeof(journal);
+            fseek(discoLectura,inicio_jornali,SEEK_SET);
+        }
+    }
+    archivo<<"</table>>];"<<endl;
+    // ------------------------------------------------------------------------------------------------------
+    // ------------------------------
+    archivo<<endl;
+    archivo<<"}"<<endl;
+    archivo.close();
     // ------- datos
     fclose(discoLectura);
+
+    // ---- conversion del archivo a tipo 
+    if(this->nombreArchivoDot != "")
+    {
+        vector<string> nombre_extesion = FUN.split(nombreArchivoDot,'.');
+        string tipo = tipoConversion(nombre_extesion[1]);
+        string comando = "dot " + tipo + " " + ruta_creacion_dot + " -o " + this->path;
+        // cout<<comando<<endl;
+        system(comando.c_str());
+    }
+    else
+    {
+        cout<<"--->No se ha expecifica el tipo de extension"<<endl;
+    } 
 }
 
 // ------ reporte del disco

@@ -343,6 +343,27 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     inicioParaBloque = SP.s_block_start;
     inicioParaBMBloque = SP.s_bm_block_start;
 
+    // ----------------------------------------------------
+    // creacion de jornali por defecto
+    int inicio_todos_journali = part_star + sizeof(superBloque);
+    int cantidad_jornalis = this->totalInodos;
+    journal journal_por_defecto;
+    strcpy(journal_por_defecto.Journal_Tipo_Operacion,"");
+    journal_por_defecto.Journal_tipo = '-';
+    strcpy(journal_por_defecto.Journal_nombre,"");
+    strcpy(journal_por_defecto.Journal_contenido,"");
+    strcpy(journal_por_defecto.Journal_fecha,"");
+    strcpy(journal_por_defecto.Journal_propietario,"");
+    journal_por_defecto.Journal_permisos = -1;
+
+    fseek(archivo,inicio_todos_journali,SEEK_SET);
+    for(int i=0; i<cantidad_jornalis; i++)
+    {
+        fwrite(&journal_por_defecto,sizeof(journal_por_defecto),1,archivo);
+        inicio_todos_journali = inicio_todos_journali + sizeof(journal);
+        fseek(archivo,inicio_todos_journali,SEEK_SET);
+    }
+    // --------------------------------------------------------
 
 
     // ----- Escritura del JOURNALING - Registro de la raiz
@@ -354,7 +375,7 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     strcpy(journalRaiz.Journal_contenido,"-");
     strcpy(journalRaiz.Journal_fecha,FUN.obtenerFechaHora().c_str()); 
     strcpy(journalRaiz.Journal_propietario,"1");
-    journalRaiz.Journal_tipo = 664;
+    journalRaiz.Journal_permisos = 664;
     // ----- Escirtura de estos journal sobre la particion
     fseek(archivo,inicioJournal,SEEK_SET);
     inicioJournal = inicioJournal + sizeof(journal);
@@ -368,7 +389,7 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     strcpy(journalUsers.Journal_contenido,"1,G,root\n1,U,root,root,123\n");
     strcpy(journalUsers.Journal_fecha,FUN.obtenerFechaHora().c_str());
     strcpy(journalUsers.Journal_propietario,"1");
-    journalUsers.Journal_tipo = 664;
+    journalUsers.Journal_permisos = 664;
     //-------Escritura de journal sobre archivo user.txt
     fseek(archivo,inicioJournal,SEEK_SET);
     inicioJournal = inicioJournal + sizeof(journal);

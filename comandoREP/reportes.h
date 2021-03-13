@@ -10,6 +10,9 @@
 #include <fstream>
 #include <stdlib.h>
 #include <cstdlib>
+#include <stdio.h>
+#include <cstring>
+#include <math.h> 
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 using namespace std;

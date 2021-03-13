@@ -138,9 +138,6 @@ void reportes::generarTipoReporte(string reporte,vector<usuarioConectado>&usuari
     {
         reporteMBR(rutaArchivo);
     }
-    else if(reporte == "disk")
-    {
-    }
     else if(reporte == "bm_inode")
     {
         reportBMindode(rutaArchivo,part_star);
@@ -168,6 +165,11 @@ void reportes::generarTipoReporte(string reporte,vector<usuarioConectado>&usuari
     else if(reporte == "journaling")
     {
         reportJornali(rutaArchivo,part_star);
+    }
+    else if(reporte == "disk")
+    {
+        cout<<"reporte del disco"<<endl;
+        reportDisk(rutaArchivo);
     }
 }
 
@@ -1091,5 +1093,166 @@ void reportes::reportJornali(string rutaArchivo,int part_star)
 }
 
 // ------ reporte del disco
+void reportes::reportDisk(string rutaArchivo)
+{
+    vector<partition3>copia_particiones;
+    // --------------------------------------------
+    FILE *discoLectura;
+    discoLectura = fopen(rutaArchivo.c_str(),"rb+");
+    if(discoLectura==NULL)
+    {
+        fclose(discoLectura);
+        exit(1);        
+    }
+    // -------  lectura del mbr
+    mbr MBR;
+    fseek(discoLectura,0,SEEK_SET);
+    fread(&MBR,sizeof(MBR),1,discoLectura);
+    int tamanio_disco = MBR.mbr_tamanio;
+    // -------- 
+    fclose(discoLectura);
+    // ---------
+    // DATOS
+    int tamanioDico = MBR.mbr_tamanio;
+    char ajuste_disco = MBR.mbr_fit;
+    
+    // busqueda departiciones utilizadas
+    for(int i=0;i<4;i++)
+    {
+        partition3 particion_encontrada;
+        if(MBR.mbr_partitions[i].part_status == '1')
+        {
+            particion_encontrada.part_status = MBR.mbr_partitions[i].part_status;
+            particion_encontrada.part_type = MBR.mbr_partitions[i].part_type;
+            particion_encontrada.part_star = MBR.mbr_partitions[i].part_star;
+            particion_encontrada.part_size = MBR.mbr_partitions[i].part_size;
+            copia_particiones.push_back(particion_encontrada);
+        }
+    }
+    // --------------------------------------
+    // ordenamiento de particiones segun su inicio en el disco
+    if(copia_particiones.empty()!=true)
+    {
+        for(int i=0; i<copia_particiones.size()-1; i++)
+        {
+            for(int j=i+1; j<copia_particiones.size(); j++)
+            {
+                if(copia_particiones[i].part_star > copia_particiones[j].part_star)
+                {
+                    partition3 aux = copia_particiones[i];
+                    copia_particiones[i] = copia_particiones[j];
+                    copia_particiones[j] = aux;
+                }
+            }
+        }
+    }
+    // -------------------------------------
+    // creacion de una lista con los espacios en blanco dentro del disco
+    int inicio = sizeof(mbr);
+    int inicio_particion;
+    int size_disco;
+    int espacio_libre;
+    int inicio_anterior;
+    // ------ recorrido
+    for(int disco=0; disco<copia_particiones.size(); disco++)
+    {
+        inicio_particion = copia_particiones[disco].part_star;
+        espacio_libre = inicio_particion - inicio;
+        inicio_anterior = inicio;
+        inicio = inicio_particion + copia_particiones[disco].part_star;
+        if(espacio_libre>0)
+        {
+            // guardamos el espacio en blanco
+            partition3 particion_libre;
+            particion_libre.part_status = '0';
+            particion_libre.part_type = 'h';
+            particion_libre.part_star = inicio_anterior;
+            particion_libre.part_size = espacio_libre;
+            copia_particiones.push_back(particion_libre);
+        }
+    }
+    // -------- condicion para ver si llego al final
+    if(inicio < MBR.mbr_tamanio)
+    {
+        espacio_libre = MBR.mbr_tamanio - inicio;
+        partition3 final_libre;
+        final_libre.part_status = '0';
+        final_libre.part_type = 'h';
+        final_libre.part_star = inicio;
+        final_libre.part_star = espacio_libre;
+        copia_particiones.push_back(final_libre);
+    }
+    // ----------------------------------------------
+    // ordenamiento final con los espacios en blanco
+    if(copia_particiones.empty()!=true)
+    {
+        for(int i=0; i<copia_particiones.size()-1; i++)
+        {
+            for(int j=i+1; j<copia_particiones.size(); j++)
+            {
+                if(copia_particiones[i].part_star > copia_particiones[j].part_star)
+                {
+                    partition3 aux = copia_particiones[i];
+                    copia_particiones[i] = copia_particiones[j];
+                    copia_particiones[j] = aux;
+                }
+            }
+        }
+    }
+    // -------------------------------------------------
+    // impresion de particiones y espacios en blanco
+    for(int espacio=0; espacio<copia_particiones.size(); espacio++)
+    {
+        cout<<copia_particiones[espacio].part_status<<"<--->";
+        cout<<copia_particiones[espacio].part_type<<"<--->";
+        cout<<copia_particiones[espacio].part_star<<"<--->";
+        cout<<copia_particiones[espacio].part_size<<endl;
+    }
+    // ----------------------------------------------------
+    // CREACION PARA EL REPORTE .DOT
+    // 
+    // ----------- estricutra del archivo dot del grafico
+    string ruta = descomponerRuta(this->path);
+    // cout<<ruta<<endl;
+    // cout<<nombreArchivoDot<<endl;
+    crearCarpetas(ruta);
+    // --- creacion del archivo dot 
+    string ruta_creacion_dot = ruta + "disk.dot";
+    ofstream archivo;
+    archivo.open(ruta_creacion_dot);
+    if(archivo.fail())
+    {
+        cout<<"--->Error en el archivo reporte MBR"<<endl;
+        archivo.close();
+        fclose(discoLectura);
+    }
+    archivo<<"digraph DISCO{"<<endl;
+    archivo<<"node [shape=record;]"<<endl;
+    archivo<<"struct1 [ "<<endl;
+    archivo<<"label = \" MBR\\n"<<porcentaje_mbr<<" | "<<endl;
+    // recorrido
+    for(int espacio=0; espacio<copia_particiones.size(); espacio++)
+    {
+        if(copia_particiones[espacio].part_status == '1')
+        {
+            // 
+            if(copia_particiones[espacio].part_type == 'p')
+            {
+                archivo<<" PRIMARIA\\n | "<<endl;
+            }
+            else if(copia_particiones[espacio].part_type = 'e')
+            {
+                archivo<<" EXTENDIDA\\n | "<<endl;
+            }
+        }
+        else if(copia_particiones[espacio].part_status == '0')
+        {
+            archivo<<" LIBRE | "<<endl;
+        }
+    }
+    // 
+    archivo<<" \" ];"<<endl;
+    archivo<<"}"<<endl;
 
+}
 // exec -path=/home/hector/prueba/calificacion.script

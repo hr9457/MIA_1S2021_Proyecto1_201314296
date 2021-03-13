@@ -27,6 +27,17 @@ struct partition2
     char part_name[16];
 };
 
+/*Estructura para hacer una copia de las particiones*/ 
+struct partition3
+{
+    char part_status;
+    char part_type;
+    char part_fit;
+    int part_star;
+    int part_size;
+    char part_name[16];
+};
+
 /*Estructura para un MBR(Master Boot Record)*/
 struct mbr
 {

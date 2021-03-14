@@ -96,7 +96,9 @@ void comamkdir::buscarCrearCarpeta(vector<usuarioConectado>&usuarioConectado,vec
     fseek(discoLectura,part_star,SEEK_SET);
     fread(&SP,sizeof(SP),1,discoLectura);
     // -------------------------- datos ---------------------------------
+    int total_journalins = SP.s_inodes_count;
     int inicio_bm_inodos = SP.s_bm_inode_start;
+    int inicio_bm_inodos2 = SP.s_bm_inode_start;
     int inicio_bm_bloques = SP.s_bm_block_start;
     int inicio_inodos = SP.s_inode_start;
     int inicio_bloques = SP.s_block_start;
@@ -377,6 +379,38 @@ void comamkdir::buscarCrearCarpeta(vector<usuarioConectado>&usuarioConectado,vec
     // {
     //     cout<<i<<"<--->"<<carpetas_separadas[i]<<endl;
     // }
+
+    // -------------------------------------------------------
+    // verificacion de que tipo de sistema de archivos se esta manajando
+    int incio_journaling = part_star + sizeof(superBloque);
+    if(incio_journaling == inicio_bm_inodos2)
+    { cout<<"---> sitema de archivos Ext2 "<<endl; }
+    else
+    {
+        cout<<"---> Journaling actualizado  en el Ext3"<<endl;
+        fseek(discoLectura,incio_journaling,SEEK_SET);
+        journal journal_lectura_actualizacion;
+        for(int numero_journal =0; numero_journal<total_journalins; numero_journal++)
+        {
+            fread(&journal_lectura_actualizacion,sizeof(journal),1,discoLectura);
+            if(strcmp(journal_lectura_actualizacion.Journal_Tipo_Operacion,"")==0)
+            {
+                strcpy(journal_lectura_actualizacion.Journal_Tipo_Operacion,"mkdir");
+                journal_lectura_actualizacion.Journal_tipo = '0';
+                strcpy(journal_lectura_actualizacion.Journal_nombre,this->rutaArchivo.c_str());
+                strcpy(journal_lectura_actualizacion.Journal_contenido,"");
+                strcpy(journal_lectura_actualizacion.Journal_fecha,FUN.obtenerFechaHora().c_str());
+                strcpy(journal_lectura_actualizacion.Journal_propietario,"1");
+                journal_lectura_actualizacion.Journal_permisos = 664; 
+                fseek(discoLectura,incio_journaling,SEEK_SET);
+                fwrite(&journal_lectura_actualizacion,sizeof(journal),1,discoLectura);
+                break;
+            }
+            incio_journaling = incio_journaling + sizeof(journal);
+            fseek(discoLectura,incio_journaling,SEEK_SET);
+        }
+    }
+
     // -------------------------------------------------------
     // hay que actualizar el super bloque
     // ----------------------------

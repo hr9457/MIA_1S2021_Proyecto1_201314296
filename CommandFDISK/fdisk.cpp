@@ -171,15 +171,15 @@ void fdisk::encontrarEspaciosLibres()
     ajuste = MBR.mbr_fit;
     // ordenar el listado de las particiones segun supocicion part_star
     // impresion de datos del disco que estamos leendo 
-    cout<<"---Datos del Disco---"<<endl;
-    for(int i= 0;i<4;i++)
-    {
-        cout<<"---Particion No."<<i<<endl;
-        cout<<"  *"<<MBR.mbr_partitions[i].part_status<<endl; 
-        cout<<"  *"<<MBR.mbr_partitions[i].part_star<<endl;
-        cout<<"  *"<<MBR.mbr_partitions[i].part_size<<endl;
-        cout<<"  *"<<MBR.mbr_partitions[i].part_name<<endl; 
-    }
+    // cout<<"---Datos del Disco---"<<endl;
+    // for(int i= 0;i<4;i++)
+    // {
+    //     cout<<"---Particion No."<<i<<endl;
+    //     cout<<"  *"<<MBR.mbr_partitions[i].part_status<<endl; 
+    //     cout<<"  *"<<MBR.mbr_partitions[i].part_star<<endl;
+    //     cout<<"  *"<<MBR.mbr_partitions[i].part_size<<endl;
+    //     cout<<"  *"<<MBR.mbr_partitions[i].part_name<<endl; 
+    // }
     // busqueda de las particiones utilizadas  
     for(int i=0;i<4;i++)
     {
@@ -367,7 +367,7 @@ void fdisk::buscarDentroParticion(int sizeParticion)
                 cout<<"-->Tipo de particion no se puede crear"<<endl;
                 break;
             }            
-        }
+        }        
     }
     inicio++;
     if(inicio > particionesLibres.size())
@@ -429,6 +429,18 @@ void fdisk::agregarActualizarMBR(char status,char type,char fit,int star,int siz
     fseek(archivo,0,SEEK_SET); // inicio del archivo
     // re-escribo el nuevo mbr para actualizarlo
     fwrite(&MBR,sizeof(MBR),1,archivo);
+
+    cout<<endl<<endl;
+    cout<<"---Datos del Disco---"<<endl;
+    for(int i= 0;i<4;i++)
+    {
+        cout<<"---Particion No."<<i<<endl;
+        cout<<"  *"<<MBR.mbr_partitions[i].part_status<<endl; 
+        cout<<"  *"<<MBR.mbr_partitions[i].part_star<<endl;
+        cout<<"  *"<<MBR.mbr_partitions[i].part_size<<endl;
+        cout<<"  *"<<MBR.mbr_partitions[i].part_name<<endl; 
+    }
+
     // cierre del dico con los cambios
     fclose(archivo);
     //cout<<"===>CIRRE DEL ARCHIVO"<<endl;

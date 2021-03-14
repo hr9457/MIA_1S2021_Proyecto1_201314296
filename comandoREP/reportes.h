@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <math.h> 
+#include <cmath>
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 using namespace std;

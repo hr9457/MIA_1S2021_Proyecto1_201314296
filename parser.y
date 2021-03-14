@@ -144,7 +144,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | REP           {reportes graficos; graficos.generarReporte(repParametros,usuarios,discos);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
         | MKFILE        {}
         | MKDIR         {comamkdir k;k.crearCarpeta(usuarios,discos,mkdirParametros);for(int i=0;i<sizeof(mkdirParametros)/sizeof(mkdirParametros[0]);i++){mkdirParametros[i]="";}}
-        | COMENTARIO    {}        
+        | COMENTARIO    {cout<<endl;}        
         ;
 
 
@@ -186,6 +186,7 @@ PARAMETROS_FDISK        : guion tk_path igual cadena            {fdiskParametros
                         | guion tk_name igual identificador     {fdiskParametros[4]=$4;}
                         | guion tk_name igual cadena            {fdiskParametros[4]=$4;}
                         | guion tk_type igual identificador     {fdiskParametros[5]=$4;}
+                        | guion tk_type igual tk_p              {fdiskParametros[5]="p";}
                         | guion tk_f igual identificador        {fdiskParametros[6]=$4;}
                         | guion tk_u igual identificador        {fdiskParametros[7]=$4;}                         
                         ;

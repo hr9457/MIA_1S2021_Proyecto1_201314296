@@ -562,7 +562,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
         int tipo_bloque = inodoLectura.i_type;
         // ----------------------------------------------------------------------
         archivo<<"INODO"<<numero_inodo<<"[label=<"<<endl;
-        archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+        archivo<<"<table>"<<endl;
         archivo<<"<tr><td port=\"E\" bgcolor=\"#535A92\"><i>INODO"<<numero_inodo<<"</i></td><td bgcolor=\"#535A92\"><i>Valor</i></td></tr>"<<endl;
         archivo<<"<tr><td>UID</td><td>"<<inodoLectura.i_uid<<"</td></tr>"<<endl;
         archivo<<"<tr><td>GID</td><td>"<<inodoLectura.i_gid<<"</td></tr>"<<endl;
@@ -617,7 +617,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
                     // ----------------------------------------------------------------
                     char encabezado = 'E';
                     archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
-                    archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+                    archivo<<"<table>"<<endl;
                     archivo<<"<tr><td port=\""<<encabezado<<"\" bgcolor=\"#54A759\"><i>BLOQUE"<<numero_bloque_inodo<<"</i></td><td bgcolor=\"#54A759\"><i>Valor</i></td></tr>"<<endl;
                     // ----------------------------------------------------------------
                     for(int x=0; x<4; x++)
@@ -1048,7 +1048,7 @@ void reportes::reportJornali(string rutaArchivo,int part_star)
     fseek(discoLectura,inicio_jornali,SEEK_SET);
 
     archivo<<"JOURNALING [label=<"<<endl;
-    archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+    archivo<<"<table>"<<endl;
     archivo<<"<tr><td>Operacon</td><td>Tipo</td><td>Nombre</td><td>Contenido</td><td>fecha</td><td>propietarios</td><td>permisos</td></tr>"<<endl;
     for(int a=0; a<total_inodos; a++)
     {
@@ -1064,6 +1064,7 @@ void reportes::reportJornali(string rutaArchivo,int part_star)
             archivo<<"<td>"<<journal_lectura.Journal_fecha<<"</td>";        
             archivo<<"<td>"<<journal_lectura.Journal_propietario<<"</td>";
             archivo<<"<td>"<<journal_lectura.Journal_permisos<<"</td></tr>";
+            archivo<<endl;
             inicio_jornali = inicio_jornali + sizeof(journal);
             fseek(discoLectura,inicio_jornali,SEEK_SET);
         }
@@ -1229,30 +1230,48 @@ void reportes::reportDisk(string rutaArchivo)
     archivo<<"digraph DISCO{"<<endl;
     archivo<<"node [shape=record;]"<<endl;
     archivo<<"struct1 [ "<<endl;
-    archivo<<"label = \" MBR | "<<endl;
+    double porcentajeMBR = round(((double)sizeof(mbr) / (double)tamanio_disco)*100);
+    archivo<<"label = \" MBR \\n"<<porcentajeMBR<<"% | "<<endl;
     // recorrido
     for(int espacio=0; espacio<copia_particiones.size(); espacio++)
     {
         if(copia_particiones[espacio].part_status == '1')
         {
+            double porcentaje = round(((double)copia_particiones[espacio].part_size / (double)tamanio_disco)*100);
             // 
             if(copia_particiones[espacio].part_type == 'p')
             {
-                archivo<<" PRIMARIA\\n | "<<endl;
+                archivo<<" PRIMARIA\\n"<<porcentaje<<"% | "<<endl;
             }
             else if(copia_particiones[espacio].part_type = 'e')
             {
-                archivo<<" EXTENDIDA\\n | "<<endl;
+                archivo<<" EXTENDIDA\\n"<<porcentaje<<"% | "<<endl;
             }
         }
         else if(copia_particiones[espacio].part_status == '0')
         {
-            archivo<<" LIBRE | "<<endl;
+            double porcentaje = round(((double)copia_particiones[espacio].part_size / (double)tamanio_disco )*100);
+            archivo<<" LIBRE\\n"<<porcentaje<<"% | "<<endl;
         }
     }
     // 
     archivo<<" \" ];"<<endl;
     archivo<<"}"<<endl;
+
+
+    // ---- conversion del archivo a tipo 
+    if(this->nombreArchivoDot != "")
+    {
+        vector<string> nombre_extesion = FUN.split(nombreArchivoDot,'.');
+        string tipo = tipoConversion(nombre_extesion[1]);
+        string comando = "dot " + tipo + " " + ruta_creacion_dot + " -o " + this->path;
+        // cout<<comando<<endl;
+        system(comando.c_str());
+    }
+    else
+    {
+        cout<<"--->No se ha expecifica el tipo de extension"<<endl;
+    } 
 
 }
 // exec -path=/home/hector/prueba/calificacion.script

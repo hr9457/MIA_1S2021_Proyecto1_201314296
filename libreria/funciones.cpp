@@ -332,6 +332,167 @@ int funciones::buscarInodoArchivoCarpeta(FILE *archivo,int part_star,char texto[
 }
 
 
+// --- metodo para buscar una carpeta dentro de un inodo
+int funciones::buscarInodoArchivoCarpeta2(FILE *discoLectura,superBloque&SP,
+int numero_inodo,string carpeta_a_buscar,int& espacio_bloque_carpetas)
+{    
+    // -------------------------- datos
+    int inicio_inodos = SP.s_inode_start;
+    int inicio_bloques = SP.s_block_start;
+    int inodos_usados = SP.s_firts_ino;
+    int inodo_econtrado = -1;
+    // -----------------------------
+    // INODO POR INODO
+    // ----- posicion desde el primer inodo de la particion
+    inicio_inodos = inicio_inodos + ( numero_inodo * sizeof(inodo) );
+    // ----- me muevo a ese inodo  
+    inodo inodo_lectura;  
+    fseek(discoLectura,inicio_inodos,SEEK_SET);
+    fread(&inodo_lectura,sizeof(inodo_lectura),1,discoLectura);
+    char tipo_bloque = inodo_lectura.i_type;
+    // ---------------------------
+    for(int apuntador=0; apuntador<12; apuntador++)
+    {
+        int numero_apuntador = inodo_lectura.i_block[apuntador];
+        if(numero_apuntador != -1)
+        {
+            // bloque tipo carpetas = 0
+            if(tipo_bloque == '0')
+            {
+                bloque_carpetas carpetas_lectura;
+                inicio_bloques = inicio_bloques + (numero_apuntador * sizeof(bloque_carpetas));
+                fseek(discoLectura,inicio_bloques,SEEK_SET);
+                fread(&carpetas_lectura,sizeof(carpetas_lectura),1,discoLectura);
+                // ---- reviso cada apuntador de ese bloque
+                for(int x=0; x<4; x++)
+                {
+                    if(strcmp(carpetas_lectura.b_content[x].b_name,carpeta_a_buscar.c_str())==0)
+                    {
+                        inodo_econtrado = carpetas_lectura.b_content[x].b_inodo;
+                        return inodo_econtrado;
+                    }
+                }
+            }
+        }
+    }
+    // ------ si no se encuentra nada en ese inodo
+    return inodo_econtrado;
+}
+
+
+
+int funciones::espacioLibreBloqueInodo(FILE *discoLectura,superBloque&SP,int numero_inodo)
+{
+    // -------------------------- datos
+    int inicio_inodos = SP.s_inode_start;
+    int inicio_bloques = SP.s_block_start;
+    int inodos_usados = SP.s_firts_ino;
+    int espacio_bloque_disponible = -1;
+    // -----------------------------
+    // INODO POR INODO
+    // ----- posicion desde el primer inodo de la particion
+    inicio_inodos = inicio_inodos + ( numero_inodo * sizeof(inodo) );
+    // ----- me muevo a ese inodo  
+    inodo inodo_lectura;  
+    fseek(discoLectura,inicio_inodos,SEEK_SET);
+    fread(&inodo_lectura,sizeof(inodo_lectura),1,discoLectura);
+    char tipo_bloque = inodo_lectura.i_type;
+    // ---------------------------
+    for(int apuntador=0; apuntador<12; apuntador++)
+    {
+        int numero_apuntador = inodo_lectura.i_block[apuntador];
+        if(numero_apuntador != -1)
+        {
+            // bloque tipo carpetas = 0
+            
+            if(tipo_bloque == '0')
+            {
+                bloque_carpetas carpetas_lectura;
+                inicio_bloques = inicio_bloques + (numero_apuntador * sizeof(bloque_carpetas));
+                fseek(discoLectura,inicio_bloques,SEEK_SET);
+                fread(&carpetas_lectura,sizeof(carpetas_lectura),1,discoLectura);
+                // ------ reviso si hay espacio en el bloque
+                for(int y=0; y<4; y++)
+                {
+                    if(strcmp(carpetas_lectura.b_content[y].b_name,"")==0)
+                    {
+                        espacio_bloque_disponible = y;
+                        return espacio_bloque_disponible;
+                    }
+                }
+            }
+        }
+    }
+    // ------ si no se encuentra nada en ese inodo
+    return espacio_bloque_disponible;
+}
+
+
+
+int funciones::espacioLibreBloqueInodo2(FILE *discoLectura,superBloque&SP,int numero_inodo)
+{
+    // -------------------------- datos
+    int inicio_inodos = SP.s_inode_start;
+    int inicio_bloques = SP.s_block_start;
+    int inodos_usados = SP.s_firts_ino;
+    int espacio_bloque_disponible = -1;
+    // -----------------------------
+    // INODO POR INODO
+    // ----- posicion desde el primer inodo de la particion
+    inicio_inodos = inicio_inodos + ( numero_inodo * sizeof(inodo) );
+    // ----- me muevo a ese inodo  
+    inodo inodo_lectura;  
+    fseek(discoLectura,inicio_inodos,SEEK_SET);
+    fread(&inodo_lectura,sizeof(inodo_lectura),1,discoLectura);
+    char tipo_bloque = inodo_lectura.i_type;
+    // ---------------------------
+    for(int apuntador=0; apuntador<12; apuntador++)
+    {
+        int numero_apuntador = inodo_lectura.i_block[apuntador];
+        if(numero_apuntador != -1)
+        {
+            cout<<"NUMERO DE APUNTADOR ENCONTRADO: "<<numero_apuntador<<endl;
+            // bloque tipo carpetas = 0
+            return numero_apuntador;            
+        }
+    }
+    // ------ si no se encuentra nada en ese inodo
+    return espacio_bloque_disponible;
+}
+
+
+
+// metodo para buscar un espacio libre en un inodo si existiera
+int funciones::espacioLibreInodo(FILE *discoLectura,superBloque&SP,int numero_inodo,int& apuntador_disponible_inodo)
+{
+    // -------------------------- datos
+    int inicio_inodos = SP.s_inode_start;
+    int inicio_bloques = SP.s_block_start;
+    int inodos_usados = SP.s_firts_ino;
+    int inodo_econtrado = -1;
+    int apuntador_disponible = -1 ;
+    // -----------------------------
+    // INODO POR INODO
+    // ----- posicion desde el primer inodo de la particion
+    inicio_inodos = inicio_inodos + ( numero_inodo * sizeof(inodo) );
+    // ----- me muevo a ese inodo  
+    inodo inodo_lectura;  
+    fseek(discoLectura,inicio_inodos,SEEK_SET);
+    fread(&inodo_lectura,sizeof(inodo_lectura),1,discoLectura);
+    char tipo_bloque = inodo_lectura.i_type;
+    // ---------------------------
+    for(int apuntador=0; apuntador<12; apuntador++)
+    {
+        int numero_apuntador = inodo_lectura.i_block[apuntador];
+        if(inodo_lectura.i_block[apuntador] == -1)
+        {
+            apuntador_disponible_inodo = apuntador;
+            break;
+        }
+    }
+    // ------ si no se encuentra nada en ese inodo
+    return apuntador_disponible;
+}
 
 // metodo para tener la lectura del archivo txt linea por linea
 void funciones::lineaAlinea()

@@ -212,7 +212,7 @@ void mkfs::sistemaExt2(vector<montajeDisco>&listado,string identificador)
     {
         raiz.i_block[i] = -1;
     }
-    raiz.i_type = 0;
+    raiz.i_type = '0';
     raiz.i_perm = 664;
     // primer apuntador hacia un bloque 
     raiz.i_block[0] = 0;
@@ -268,7 +268,7 @@ void mkfs::sistemaExt2(vector<montajeDisco>&listado,string identificador)
     {
         inodoUsers.i_block[i] = -1;
     }
-    inodoUsers.i_type = 1;
+    inodoUsers.i_type = '1';
     inodoUsers.i_perm = 664;
     //apuntador
     inodoUsers.i_block[0] = 1;
@@ -429,7 +429,7 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     {
         raiz.i_block[i] = -1;
     }
-    raiz.i_type = 0;
+    raiz.i_type = '0';
     raiz.i_perm = 664;
     // primer apuntador hacia un bloque 
     raiz.i_block[0] = 0;
@@ -492,7 +492,7 @@ void mkfs::sistemaExt3(vector<montajeDisco>&listado,string identificador)
     {
         inodoUsers.i_block[i] = -1;
     }
-    inodoUsers.i_type = 1;
+    inodoUsers.i_type = '1';
     inodoUsers.i_perm = 664;
     //apuntador
     inodoUsers.i_block[0] = 1;

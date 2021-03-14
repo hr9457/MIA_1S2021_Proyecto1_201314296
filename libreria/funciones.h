@@ -34,6 +34,10 @@ public:
     string convertirArreglochar(char[]);
     bool buscarDentroVector(string,string);
     int buscarInodoArchivoCarpeta(FILE*,int,char[]);
+    int buscarInodoArchivoCarpeta2(FILE*,superBloque&,int,string,int&);
+    int espacioLibreBloqueInodo(FILE*,superBloque&,int);
+    int espacioLibreBloqueInodo2(FILE*,superBloque&,int);
+    int espacioLibreInodo(FILE*,superBloque&,int,int&);
     void lineaAlinea();
     string concatenarArchivoTexto(FILE*,int,inodo,char[],int);
 };

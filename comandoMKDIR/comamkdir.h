@@ -9,18 +9,20 @@
 #include "libreria/funciones.h"
 using namespace std;
 
-class mkdir
+class comamkdir
 {
 private:
     string rutaArchivo;
+    string valorP="false";
     funciones FUN;
 public:
-    mkdir();
-    void crearCarpeta(vector<usuarioConectado>&,string[]);
+    comamkdir();
+    void crearCarpeta(vector<usuarioConectado>&,vector<montajeDisco>&,string[]);
     bool parametroObligatorio(string[]);
     string eliminacionComillas(string);
     bool verificacionSession(vector<usuarioConectado>&);
-    bool parametrosOpcional(string[]);
+    void parametrosOpcional(string[]);
+    void buscarCrearCarpeta(vector<usuarioConectado>&,vector<montajeDisco>&);
 };
 
 #endif // MKDIR_H

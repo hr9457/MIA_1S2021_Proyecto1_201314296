@@ -563,7 +563,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
         // ----------------------------------------------------------------------
         archivo<<"INODO"<<numero_inodo<<"[label=<"<<endl;
         archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
-        archivo<<"<tr><td port=\"E\" ><i>Nombre</i></td><td><i>Valor</i></td></tr>"<<endl;
+        archivo<<"<tr><td port=\"E\" ><i>INODO"<<numero_inodo<<"</i></td><td><i>Valor</i></td></tr>"<<endl;
         archivo<<"<tr><td>UID</td><td>"<<inodoLectura.i_uid<<"</td></tr>"<<endl;
         archivo<<"<tr><td>GID</td><td>"<<inodoLectura.i_gid<<"</td></tr>"<<endl;
         archivo<<"<tr><td>SIZE</td><td>"<<inodoLectura.i_size<<"</td></tr>"<<endl;
@@ -608,7 +608,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
             if(numero_bloque_inodo != -1)
             {
                 // tipo 0 = carpeta, tipo 1 = archivo
-                if(tipo_bloque == 0)
+                if(tipo_bloque == '0')
                 {
                     bloque_carpetas carpeta_lectura;
                     inicio_de_bloques = inicio_de_bloques + ( numero_bloque_inodo * sizeof(bloque_carpetas) );
@@ -618,7 +618,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
                     char encabezado = 'E';
                     archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
                     archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
-                    archivo<<"<tr><td port=\""<<encabezado<<"\" ><i>Nombre</i></td><td><i>Valor</i></td></tr>"<<endl;
+                    archivo<<"<tr><td port=\""<<encabezado<<"\" ><i>BLOQUE"<<numero_bloque_inodo<<"</i></td><td><i>Valor</i></td></tr>"<<endl;
                     // ----------------------------------------------------------------
                     for(int x=0; x<4; x++)
                     {
@@ -629,7 +629,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
                     archivo<<endl;
                     inicio_de_bloques = SP.s_block_start;
                 }
-                else if(tipo_bloque == 1)
+                else if(tipo_bloque == '1')
                 {
                     bloque_archivos archivo_lectura;
                     inicio_de_bloques = inicio_de_bloques + ( numero_bloque_inodo * sizeof(bloque_carpetas) );
@@ -676,7 +676,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
             if(numero_bloque_inodo != -1)
             {
                 archivo<<"INODO"<<numero_inodo<<":"<<pointerD<<"-> BLOQUE"<<numero_bloque_inodo<<":E ;"<<endl;  
-                if(tipo_bloque == 0)
+                if(tipo_bloque == '0')
                 {
                     bloque_carpetas carpeta_lectura;
                     inicio_de_bloques = inicio_de_bloques + ( numero_bloque_inodo * sizeof(bloque_carpetas) );
@@ -1229,7 +1229,7 @@ void reportes::reportDisk(string rutaArchivo)
     archivo<<"digraph DISCO{"<<endl;
     archivo<<"node [shape=record;]"<<endl;
     archivo<<"struct1 [ "<<endl;
-    archivo<<"label = \" MBR\\n"<<porcentaje_mbr<<" | "<<endl;
+    archivo<<"label = \" MBR | "<<endl;
     // recorrido
     for(int espacio=0; espacio<copia_particiones.size(); espacio++)
     {

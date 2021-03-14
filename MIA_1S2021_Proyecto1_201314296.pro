@@ -24,9 +24,9 @@ SOURCES += main.cpp \
     comandoLOGOUT/logout.cpp \
     comandoMKGRP/mkgrp.cpp \
     comandoMKFILE/mkfile.cpp \
-    comandoMKDIR/mkdir.cpp \
     comandoPAUSA/pausa.cpp \
-    comandoREP/reportes.cpp
+    comandoREP/reportes.cpp \
+    comandoMKDIR/comamkdir.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -62,6 +62,6 @@ HEADERS += \
     comandoLOGOUT/logout.h \
     comandoMKGRP/mkgrp.h \
     comandoMKFILE/mkfile.h \
-    comandoMKDIR/mkdir.h \
     comandoPAUSA/pausa.h \
-    comandoREP/reportes.h
+    comandoREP/reportes.h \
+    comandoMKDIR/comamkdir.h

@@ -89,7 +89,7 @@
 #include "comandoLOGOUT/logout.h"
 #include "comandoMKGRP/mkgrp.h"
 #include "comandoMKFILE/mkfile.h"
-#include "comandoMKDIR/mkdir.h"
+#include "comandoMKDIR/comamkdir.h"
 #include "comandoPAUSA/pausa.h"
 #include "comandoREP/reportes.h"
 #include "libreria/funciones.h"
@@ -1720,7 +1720,7 @@ yyreduce:
 
   case 18:
 #line 146 "parser.y"
-                        {}
+                        {comamkdir k;k.crearCarpeta(usuarios,discos,mkdirParametros);for(int i=0;i<sizeof(mkdirParametros)/sizeof(mkdirParametros[0]);i++){mkdirParametros[i]="";}}
 #line 1725 "parser.cpp"
     break;
 

@@ -20,7 +20,7 @@
 #include "comandoLOGOUT/logout.h"
 #include "comandoMKGRP/mkgrp.h"
 #include "comandoMKFILE/mkfile.h"
-#include "comandoMKDIR/mkdir.h"
+#include "comandoMKDIR/comamkdir.h"
 #include "comandoPAUSA/pausa.h"
 #include "comandoREP/reportes.h"
 #include "libreria/funciones.h"
@@ -143,7 +143,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | PAUSE         {pausa pausarSystem; pausarSystem.pausarSistema();}
         | REP           {reportes graficos; graficos.generarReporte(repParametros,usuarios,discos);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
         | MKFILE        {}
-        | MKDIR         {}
+        | MKDIR         {comamkdir k;k.crearCarpeta(usuarios,discos,mkdirParametros);for(int i=0;i<sizeof(mkdirParametros)/sizeof(mkdirParametros[0]);i++){mkdirParametros[i]="";}}
         | COMENTARIO    {}        
         ;
 

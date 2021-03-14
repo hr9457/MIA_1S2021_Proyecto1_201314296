@@ -563,7 +563,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
         // ----------------------------------------------------------------------
         archivo<<"INODO"<<numero_inodo<<"[label=<"<<endl;
         archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
-        archivo<<"<tr><td port=\"E\" ><i>INODO"<<numero_inodo<<"</i></td><td><i>Valor</i></td></tr>"<<endl;
+        archivo<<"<tr><td port=\"E\" bgcolor=\"#535A92\"><i>INODO"<<numero_inodo<<"</i></td><td bgcolor=\"#535A92\"><i>Valor</i></td></tr>"<<endl;
         archivo<<"<tr><td>UID</td><td>"<<inodoLectura.i_uid<<"</td></tr>"<<endl;
         archivo<<"<tr><td>GID</td><td>"<<inodoLectura.i_gid<<"</td></tr>"<<endl;
         archivo<<"<tr><td>SIZE</td><td>"<<inodoLectura.i_size<<"</td></tr>"<<endl;
@@ -618,7 +618,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
                     char encabezado = 'E';
                     archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
                     archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
-                    archivo<<"<tr><td port=\""<<encabezado<<"\" ><i>BLOQUE"<<numero_bloque_inodo<<"</i></td><td><i>Valor</i></td></tr>"<<endl;
+                    archivo<<"<tr><td port=\""<<encabezado<<"\" bgcolor=\"#54A759\"><i>BLOQUE"<<numero_bloque_inodo<<"</i></td><td bgcolor=\"#54A759\"><i>Valor</i></td></tr>"<<endl;
                     // ----------------------------------------------------------------
                     for(int x=0; x<4; x++)
                     {
@@ -640,7 +640,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
                     // ----------------------------------------------------------------
                     archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
                     archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
-                    archivo<<"<tr><td port=\""<<encabezado<<"\" ><i>Contenido</i></td></tr>"<<endl;
+                    archivo<<"<tr><td port=\""<<encabezado<<"\" bgcolor=\"#D49B6A\"><i>Contenido</i></td></tr>"<<endl;
                     archivo<<"<tr><td>"<<archivo_lectura.b_content<<"</td></tr>"<<endl;
                     archivo<<"</table>>];"<<endl;
                     archivo<<endl;

@@ -130,7 +130,7 @@ void comamkdir::buscarCrearCarpeta(vector<usuarioConectado>&usuarioConectado,vec
         numero_inodo_busqueda = FUN.buscarInodoArchivoCarpeta2(discoLectura,SP,numero_inodo_busqueda,carpeta_a_buscar,espacio_bloque_carpetas);
         numero_bloque_espacio_bloque_carpetas = FUN.espacioLibreBloqueInodo(discoLectura,SP,copia_numero_inodo_buqueda);
         numero_bloque_actualizar = FUN.espacioLibreBloqueInodo2(discoLectura,SP,copia_numero_inodo_buqueda);
-        // FUN.espacioLibreInodo(discoLectura,SP,numero_inodo_busqueda,apuntador_disponible_inodo);
+        FUN.espacioLibreInodo(discoLectura,SP,copia_numero_inodo_buqueda,apuntador_disponible_inodo);
 
         cout<<"inodo padre: "<<inodo_padre<<endl;
         cout<<"carpeta donde buscar: "<<carpeta_a_buscar<<endl;
@@ -189,8 +189,8 @@ void comamkdir::buscarCrearCarpeta(vector<usuarioConectado>&usuarioConectado,vec
             if(numero_bloque_espacio_bloque_carpetas!=-1)
             {
                 // espacio libre en el bloque
-                cout<<numero_bloque_espacio_bloque_carpetas<<endl;
-                cout<<"bloque: "<<numero_bloque_actualizar<<endl;
+                // cout<<numero_bloque_espacio_bloque_carpetas<<endl;
+                // cout<<"bloque: "<<numero_bloque_actualizar<<endl;
                 // tengo que mover a ese bloque
                 inicio_bloques = inicio_bloques + (numero_bloque_actualizar * sizeof(bloque_carpetas));
                 fseek(discoLectura,inicio_bloques,SEEK_SET);
@@ -231,7 +231,7 @@ void comamkdir::buscarCrearCarpeta(vector<usuarioConectado>&usuarioConectado,vec
                 fwrite(&nuevo_inodo_carpeta,sizeof(nuevo_inodo_carpeta),1,discoLectura);
                 // -------- escirbo su bloque
                 inicio_bloques = inicio_bloques + ( bloque_libre_para_usar * sizeof(bloque_carpetas) );
-                fseek(discoLectura,inicio_bloques,SEEK_SET);
+                fseek(discoLectura,inicio_bloques,SEEK_SET);                
                 fwrite(&carpetas_inodo_nuevo,sizeof(carpetas_inodo_nuevo),1,discoLectura);
                 // ------------------------------------------------
                 // reinicio posicion inciales de star
@@ -256,64 +256,99 @@ void comamkdir::buscarCrearCarpeta(vector<usuarioConectado>&usuarioConectado,vec
 
 
             }
-            // else
-            // {
+            else
+            {
+                if(apuntador_disponible_inodo!=-1 && apuntador_disponible_inodo<12)
+                {
+                    inicio_inodos = inicio_inodos + ( inodo_padre * sizeof(inodo) );
+                    fseek(discoLectura,inicio_inodos,SEEK_SET);
+                    inodo inodo_padre_lectura;
+                    fread(&inodo_padre_lectura,sizeof(inodo_padre_lectura),1,discoLectura);
+                    inodo_padre_lectura.i_block[apuntador_disponible_inodo] = bloque_libre_para_usar;
+                    
+                    // ACTUALIZO COMO TAL UN NUEVO BLOQUE DE APUNTADORES
+                    bloque_carpetas nuevo_bloque_apuntadores;                                       
+                    for(int b=0;b<4;b++)
+                    {
+                        content contendio_nuevo_bloque_apuntadores; 
+                        strcpy(contendio_nuevo_bloque_apuntadores.b_name,"");
+                        contendio_nuevo_bloque_apuntadores.b_inodo = -1;
+                        nuevo_bloque_apuntadores.b_content[b] = contendio_nuevo_bloque_apuntadores;
+                    }
+                    // primera posicon de ese bloque nuevo
+                    strcpy(nuevo_bloque_apuntadores.b_content[0].b_name,carpeta_a_buscar.c_str());
+                    nuevo_bloque_apuntadores.b_content[0].b_inodo = inodo_libre_para_usar2;
 
-            //     if(apuntador_disponible_inodo!=-1 && apuntador_disponible_inodo<12)
-            //     {
-            //         inicio_inodos = inicio_inodos + ( inodo_padre * sizeof(inodo) );
-            //         fseek(discoLectura,inicio_inodos,SEEK_SET);
-            //         inodo inodo_padre_lectura;
-            //         fread(&inodo_padre_lectura,sizeof(inodo_padre_lectura),1,discoLectura);
-            //         inodo_padre_lectura.i_block[apuntador_disponible_inodo] = inodo_libre_para_usar;
-            //         // ----------------------------------------------------------------------------------
-            //         // actualizo
-            //         fseek(discoLectura,inicio_inodos,SEEK_SET);
-            //         fwrite(&inodo_padre_lectura,sizeof(inodo_padre_lectura),1,discoLectura);
-            //         // ------------------------
-            //         // reinicio
-            //         // ------------------------------------------------
-            //         // reinicio posicion inciales de star
-            //         inicio_inodos = SP.s_inode_start;
-            //         inicio_bloques = SP.s_block_start;
-            //         // -------------------------------------------------------------------------------------------------------
-            //         // ESCRITURA EN EL DISCO DURO
-            //         //  ------- escirbo el nuevo inodo
-            //         inicio_inodos = inicio_inodos + ( inodo_libre_para_usar * sizeof(inodo) );
-            //         fseek(discoLectura,inicio_inodos,SEEK_SET);
-            //         fwrite(&nuevo_inodo_carpeta,sizeof(nuevo_inodo_carpeta),1,discoLectura);
-            //         // -------- escirbo su bloque
-            //         inicio_bloques = inicio_bloques + ( bloque_libre_para_usar * sizeof(bloque_carpetas) );
-            //         fseek(discoLectura,inicio_bloques,SEEK_SET);
-            //         fwrite(&carpetas_inodo_nuevo,sizeof(carpetas_inodo_nuevo),1,discoLectura);
-            //         // ------------------------------------------------
-            //         // reinicio posicion inciales de star
-            //         inicio_inodos = SP.s_inode_start;
-            //         inicio_bloques = SP.s_block_start;
+                    // escirbo el nuevo bloque de apuntadores
+                    inicio_bloques = inicio_bloques + ( bloque_libre_para_usar * sizeof(bloque_carpetas) );
+                    fseek(discoLectura,inicio_bloques,SEEK_SET);
+                    fwrite(&nuevo_bloque_apuntadores,sizeof(nuevo_bloque_apuntadores),1,discoLectura); 
+                    // 
+                    // escribo en el bitmap
+                    char ocupado = '1';
+                    inicio_bm_bloques = inicio_bm_bloques + bloque_libre_para_usar;
+                    fseek(discoLectura,inicio_bm_bloques,SEEK_SET);
+                    fwrite(&ocupado,sizeof(ocupado),1,discoLectura);
+                    // reinicio los inicios
+                    bloque_libre_para_usar++;
+                    inicio_bloques = SP.s_block_start;
+                    inicio_bm_bloques = SP.s_bm_block_start;
+                    //                   
+                    
 
-            //         // -------------------------
-            //         // ----- Escribo en los bitmap
-            //         char bm_ocupado = '1';
-            //         // bitmap inodos
-            //         inicio_bm_inodos = inicio_bm_inodos + inodo_libre_para_usar;
-            //         fseek(discoLectura,inicio_bm_inodos,SEEK_SET);
-            //         fwrite(&bm_ocupado,sizeof(bm_ocupado),1,discoLectura);
-            //         // bitmap bloques
-            //         inicio_bm_bloques = inicio_bm_bloques + bloque_libre_para_usar;
-            //         fseek(discoLectura,inicio_bm_bloques,SEEK_SET);
-            //         fwrite(&bm_ocupado,sizeof(bm_ocupado),1,discoLectura);
-            //         // -----------------------------------
-            //         //  reinicio posiciones inciales bm
-            //         inicio_bm_inodos = SP.s_bm_inode_start;
-            //         inicio_bm_bloques = SP.s_bm_block_start;
+                    // ----------------------------------------------------------------------------------
+                    // actualizo
+                    fseek(discoLectura,inicio_inodos,SEEK_SET);
+                    fwrite(&inodo_padre_lectura,sizeof(inodo_padre_lectura),1,discoLectura);
+                    // ------------------------
+                    // reinicio
+                    // ------------------------------------------------
+                    // reinicio posicion inciales de star
+                    inicio_inodos = SP.s_inode_start;
+                    inicio_bloques = SP.s_block_start;
+                    
+                    // -------------------------------------------------------------------------------------------------------
+                    // ESCRITURA EN EL DISCO DURO
+                    //  ------- escirbo el nuevo inodo
+                    inicio_inodos = inicio_inodos + ( inodo_libre_para_usar * sizeof(inodo) );
+                    nuevo_inodo_carpeta.i_block[0] = bloque_libre_para_usar;
+                    fseek(discoLectura,inicio_inodos,SEEK_SET);
+                    fwrite(&nuevo_inodo_carpeta,sizeof(nuevo_inodo_carpeta),1,discoLectura);
 
-            //     }
-            //     else
-            //     {
-            //         cout<<"----->No se ha creado la carpeta ya no hay espacio"<<endl;
-            //     }
+                    // -------- escirbo su bloque
+                    inicio_bloques = inicio_bloques + ( bloque_libre_para_usar * sizeof(bloque_carpetas) );
 
-            // }
+                    fseek(discoLectura,inicio_bloques,SEEK_SET);
+                    fwrite(&carpetas_inodo_nuevo,sizeof(carpetas_inodo_nuevo),1,discoLectura);
+
+                    // ------------------------------------------------
+                    // reinicio posicion inciales de star
+                    inicio_inodos = SP.s_inode_start;
+                    inicio_bloques = SP.s_block_start;
+
+                    // -------------------------
+                    // ----- Escribo en los bitmap
+                    char bm_ocupado = '1';
+                    // bitmap inodos
+                    inicio_bm_inodos = inicio_bm_inodos + inodo_libre_para_usar;
+                    fseek(discoLectura,inicio_bm_inodos,SEEK_SET);
+                    fwrite(&bm_ocupado,sizeof(bm_ocupado),1,discoLectura);
+                    // bitmap bloques
+                    inicio_bm_bloques = inicio_bm_bloques + bloque_libre_para_usar;
+                    fseek(discoLectura,inicio_bm_bloques,SEEK_SET);
+                    fwrite(&bm_ocupado,sizeof(bm_ocupado),1,discoLectura);
+                    // -----------------------------------
+                    //  reinicio posiciones inciales bm
+                    inicio_bm_inodos = SP.s_bm_inode_start;
+                    inicio_bm_bloques = SP.s_bm_block_start;
+
+                }
+                else
+                {
+                    cout<<"----->No se ha creado la carpeta ya no hay espacio"<<endl;
+                }
+
+            }
 
 
             // actualizar inodo libre y bloque libre

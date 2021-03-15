@@ -85,6 +85,7 @@ void mkgrp::aperturaArchivo(vector<montajeDisco>&listadoDiscos,vector<usuarioCon
     superBloque SP;
     inodo INODO_INICIO;
     bloque_carpetas BLOQUE_BUSQUEDA;
+    bool espacio_archivo = false;
 
     //------ apertura
     FILE *archivo;
@@ -92,6 +93,18 @@ void mkgrp::aperturaArchivo(vector<montajeDisco>&listadoDiscos,vector<usuarioCon
     if(archivo==NULL)
         exit(1);
     
+    // lectura de superbloque de la particion
+    fseek(archivo,part_star,SEEK_SET);
+    fread(&SP,sizeof(superBloque),1,archivo);
+    int inicio_inodos = SP.s_inode_start;
+    int inicio_bloque = SP.s_block_start;
+    int primer_bloque_libre = SP.s_first_blo;
+    int inicio_bm_bloques = SP.s_bm_block_start;
+
+    // --- datos para el nuevo bloque
+    string dato_nuevo_grupo = "1,G,";
+    dato_nuevo_grupo += this->grupoUsser;
+
     //--------lo que voy a buscar
     char archivoUser[] = "user.txt";
 
@@ -102,40 +115,62 @@ void mkgrp::aperturaArchivo(vector<montajeDisco>&listadoDiscos,vector<usuarioCon
     cout<<"Nodo del archivo a buscar es: "<<nodoDelArchivo<<endl;
 
     // --- busco el inodo del archivo de texto en el indo encontrados
+    inicio_inodos = inicio_inodos + (nodoDelArchivo * sizeof(inodo));
+    cout<<inicio_inodos<<endl;
+    inodo inodo_archivo_usuarios;
+    fseek(archivo,inicio_inodos,SEEK_SET);
+    fread(&inodo_archivo_usuarios,sizeof(inodo),1,archivo);
+
+    for(int apuntador=0; apuntador<12; apuntador++)
+    {        
+        if(inodo_archivo_usuarios.i_block[apuntador]!= -1)
+        {            
+            int espacio = inodo_archivo_usuarios.i_block[apuntador];
+            cout<<"Espacio disponible para colocar el nuevo bloque: "<<espacio<<endl;
+
+            bloque_archivos nuevo_texto;
+            strcpy(nuevo_texto.b_content,dato_nuevo_grupo.c_str());            
+
+            // escirbo el bloque en el primer bloque libre
+            inicio_bloque = inicio_bloque + (primer_bloque_libre * sizeof(bloque_archivos));
+            fseek(archivo,inicio_bloque,SEEK_SET);
+            fwrite(&nuevo_texto,sizeof(bloque_archivos),1,archivo);
+
+            inodo_archivo_usuarios.i_block[espacio] = primer_bloque_libre;
+            inicio_bloque = SP.s_block_start;
+
+            // actualizo el bitmpa de bloques
+            char ocupado = '1';
+            inicio_bm_bloques = inicio_bm_bloques + (primer_bloque_libre);
+            fseek(archivo,inicio_bm_bloques,SEEK_SET);
+            fwrite(&ocupado,sizeof(ocupado),1,archivo);
+            primer_bloque_libre++;
+            espacio_archivo = true;
+            break;
+        }
+    }
+
+
+    //  actualizacion de inodo
+    fseek(archivo,inicio_inodos,SEEK_SET);
+    fwrite(&inodo_archivo_usuarios,sizeof(inodo),1,archivo);
+
+    // actualizacion de super bloque de la particion
+    SP.s_first_blo = primer_bloque_libre;
     fseek(archivo,part_star,SEEK_SET);
-    fread(&SP,sizeof(SP),1,archivo);
-    int inicio_inodo_archivo = SP.s_inode_start;
-    int inicio_bloques = SP.s_block_start;
-    inicio_inodo_archivo = inicio_inodo_archivo + ( nodoDelArchivo * sizeof(inodo) );
+    fwrite(&SP,sizeof(superBloque),1,archivo);
 
-    // cout<<"inicio del inodo users: "<<inicio_inodo_archivo<<endl;
-    // --- lectura del inodo econtrado
-    inodo inodo_archivo_texto;
-    fseek(archivo,inicio_inodo_archivo,SEEK_SET);
-    fread(&inodo_archivo_texto,sizeof(inodo_archivo_texto),1,archivo);
-
-    // --- concatenacion del nuevo grupo a insertar
-    char nuevoGrupo[] = "1,G,";
-    strcat(nuevoGrupo,this->grupoUsser.c_str());
-    int longitudNuevo = sizeof(nuevoGrupo) + grupoUsser.size();
-
-    // --- funcion para ir a insertar el nuevo grupo en el bloque existente o en uno nuevo
-    string contenido_texto = FUN.concatenarArchivoTexto(archivo,part_star,inodo_archivo_texto,nuevoGrupo,longitudNuevo);
+    if(espacio_archivo)
+    { 
+        cout<<"---> Se ha creado un nuevo grupo para usuarios "<<endl;
+        cout<<endl;
+    }
+    else
+    {
+        cout<<"---> NO hay espacio en el archiv usr.txt para crea un nuevo grupo de usuarios"<<endl;
+        cout<<endl;
+    }
     fclose(archivo);
-
-    // ---- Reelectura del bloque que se escribio 
-    // //------ apertura
-    // FILE *archivo2;
-    // archivo2 = fopen(rutaArchivo.c_str(),"rb+");
-    // if(archivo==NULL)
-    //     exit(1);
-    // // yo se que es el bloque 1
-    // bloque_archivos leer;
-    // inicio_bloques = inicio_bloques + sizeof(bloque_archivos);
-    // fseek(archivo2,inicio_bloques,SEEK_SET);
-    // fread(&leer,sizeof(leer),1,archivo2);
-    // cout<<leer.b_content<<endl;
-    // fclose(archivo2);
 }
 
 

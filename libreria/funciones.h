@@ -39,7 +39,7 @@ public:
     int espacioLibreBloqueInodo2(FILE*,superBloque&,int);
     int espacioLibreInodo(FILE*,superBloque&,int,int&);
     void lineaAlinea();
-    string concatenarArchivoTexto(FILE*,int,inodo,char[],int);
+    int concatenarArchivoTexto(FILE*,int,inodo,char[],int);
 };
 
 #endif // FUNCIONES_H

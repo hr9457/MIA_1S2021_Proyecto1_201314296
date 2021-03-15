@@ -502,7 +502,7 @@ void funciones::lineaAlinea()
 
 
 // funcion par concatenar todas las lineas de un archivo de texto y insertar en un bloque
-string funciones::concatenarArchivoTexto(FILE *archivo,int part_star,inodo inodoTexto,char nuevo[],int longitudNuevo)
+int funciones::concatenarArchivoTexto(FILE *archivo,int part_star,inodo inodoTexto,char nuevo[],int longitudNuevo)
 {
     string texto;
 
@@ -513,6 +513,7 @@ string funciones::concatenarArchivoTexto(FILE *archivo,int part_star,inodo inodo
 
     // ----- inicios de los bloques
     int inicio_bloques = SP.s_block_start;
+    int primerBloqueLibre = SP.s_first_blo;
     // cout<<"inicio de los bloques: "<<inicio_bloques<<endl;
 
     // ---- recorrer cada espacio del apuntador directo para ver si tiene algo y concatenar
@@ -536,6 +537,10 @@ string funciones::concatenarArchivoTexto(FILE *archivo,int part_star,inodo inodo
             texto += bloque_texto.b_content;
             int longitudTexto = texto.size();            
 
+            string textoAdd = nuevo;
+            int longitudTextoAdd = textoAdd.size();
+            int letra;
+
             // --- revision en el bloque si aun hay espacio
             if(longitudTexto<63)
             {
@@ -543,17 +548,45 @@ string funciones::concatenarArchivoTexto(FILE *archivo,int part_star,inodo inodo
                 int caracters_permitidos = 63 - longitudTexto;
                 cout<<"Caracters permitod en el bloque son: "<<caracters_permitidos<<endl;
                 // ------ colocar los caracteres
-                if(caracters_permitidos>longitudNuevo)
+                
+                for(letra=0; letra<caracters_permitidos;letra++)
                 {
-                    strcat(bloque_texto.b_content,nuevo);
-                    cout<<bloque_texto.b_content<<endl;
-                    // ---- actualizacion en el bloque 
-                    fseek(archivo,inicio_bloque_texto,SEEK_SET);
-                    fwrite(&bloque_texto,sizeof(bloque_texto),1,archivo);
+                    texto += textoAdd[letra];
                 }
+                strcpy(bloque_texto.b_content,texto.c_str());
+                // actualizo el bloque de texto de usuarios
+                fseek(archivo,inicio_bloque_texto,SEEK_SET);
+                fwrite(&inicio_bloque_texto,sizeof(bloque_archivos),1,archivo);
+                inicio_bloques = SP.s_block_start;
+            }
+
+            // aun sobre cadena de caracteres 
+            if(letra<longitudTextoAdd)
+            {
+                bloque_archivos bloque_texto_nuevo;
+                if(longitudTextoAdd<63)
+                {
+                    string texto_sobrante;
+                    for(int i=letra;letra<longitudTextoAdd;i++)
+                    {
+                        texto_sobrante += textoAdd[letra];
+                    }
+                    strcpy(bloque_texto_nuevo.b_content,texto_sobrante.c_str());
+                }                
+
+                apuntador++;
+                if(apuntador<12)
+                {
+                    inicio_bloques = inicio_bloques + (primerBloqueLibre * sizeof(bloque_archivos) );
+                    fseek(archivo,inicio_bloques,SEEK_SET);
+                    fwrite(&bloque_texto_nuevo,sizeof(bloque_archivos),1,archivo);
+                    inodoTexto.i_block[apuntador] = primerBloqueLibre;
+                    primerBloqueLibre++;
+                }
+
             }
         }
     }
     // ----- inserto en archio de texto lo que se quiere inisertar
-    return texto;
+    return primerBloqueLibre;
 }

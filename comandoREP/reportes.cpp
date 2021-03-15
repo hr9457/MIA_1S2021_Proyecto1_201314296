@@ -639,7 +639,7 @@ void reportes::reportTree(string rutaArchivo,int part_star)
                     char encabezado = 'E';
                     // ----------------------------------------------------------------
                     archivo<<"BLOQUE"<<numero_bloque_inodo<<"[label=<"<<endl;
-                    archivo<<"<table borde=\"0\" cellborde=\"1\" cellspacing=\"0\">"<<endl;
+                    archivo<<"<table>"<<endl;
                     archivo<<"<tr><td port=\""<<encabezado<<"\" bgcolor=\"#D49B6A\"><i>Contenido</i></td></tr>"<<endl;
                     archivo<<"<tr><td>"<<archivo_lectura.b_content<<"</td></tr>"<<endl;
                     archivo<<"</table>>];"<<endl;

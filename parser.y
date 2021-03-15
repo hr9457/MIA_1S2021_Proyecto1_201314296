@@ -23,6 +23,7 @@
 #include "comandoMKDIR/comamkdir.h"
 #include "comandoPAUSA/pausa.h"
 #include "comandoREP/reportes.h"
+#include "comandoCAT/cmcat.h"
 #include "libreria/funciones.h"
 #include "Estructuras/structs.h"
 //#include "obmkdisk.h"
@@ -50,6 +51,7 @@ string mkgrpParametros[1];
 string mkfileParametros[4];
 string mkdirParametros[2];
 string repParametros[4];
+string catParametros;
 
 int yyerror(const char* mens)
 {
@@ -86,6 +88,7 @@ char TEXT[256];
 %token<TEXT> tk_mkfile;
 %token<TEXT> tk_mkdir;
 %token<TEXT> tk_pause;
+%token<TEXT> tk_cat;
 
 %token<TEXT> tk_size;
 %token<TEXT> tk_path;
@@ -102,6 +105,7 @@ char TEXT[256];
 %token<TEXT> tk_r;
 %token<TEXT> tk_p;
 %token<TEXT> tk_rep;
+%token<TEXT> tk_file;
 
 %token<TEXT> guion;
 %token<TEXT> igual;
@@ -144,6 +148,7 @@ COMANDO : MKDISK        {mkdisk disco; disco.crearDisco(mkdiskParametros);for(in
         | REP           {reportes graficos; graficos.generarReporte(repParametros,usuarios,discos);for(int i=0;i<sizeof(repParametros)/sizeof(repParametros[0]);i++){repParametros[i]="";}}
         | MKFILE        {}
         | MKDIR         {comamkdir k;k.crearCarpeta(usuarios,discos,mkdirParametros);for(int i=0;i<sizeof(mkdirParametros)/sizeof(mkdirParametros[0]);i++){mkdirParametros[i]="";}}
+        | CAT           {cmcat archivos; archivos.leerArchivo(usuarios,discos,catParametros); catParametros="";}
         | COMENTARIO    {cout<<endl;}        
         ;
 
@@ -319,6 +324,12 @@ PARAMETROS_REP    :     guion tk_name igual identificador   {repParametros[0]=$4
                   ;
 
 
+CAT   :     tk_cat PARAMETROS_CAT
+      ;
+
+PARAMETROS_CAT    :     guion tk_file igual tk_ruta  {catParametros=$4;}
+                  |     guion tk_file igual cadena   {catParametros=$4;}
+                  ;
 
 
 EXEC : tk_exec guion tk_path igual cadena     {execParametro=$5;}

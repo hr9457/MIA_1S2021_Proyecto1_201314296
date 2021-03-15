@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     comandoMKFILE/mkfile.cpp \
     comandoPAUSA/pausa.cpp \
     comandoREP/reportes.cpp \
-    comandoMKDIR/comamkdir.cpp
+    comandoMKDIR/comamkdir.cpp \
+    comandoCAT/cmcat.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -64,4 +65,5 @@ HEADERS += \
     comandoMKFILE/mkfile.h \
     comandoPAUSA/pausa.h \
     comandoREP/reportes.h \
-    comandoMKDIR/comamkdir.h
+    comandoMKDIR/comamkdir.h \
+    comandoCAT/cmcat.h
